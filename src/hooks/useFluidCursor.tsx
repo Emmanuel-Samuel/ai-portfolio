@@ -1,20 +1,24 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
-const useFluidCursor = () => {
-  const canvas = document.getElementById("fluid");
+const useFluidCursor = (
+  canvas: HTMLCanvasElement | null,
+  onActivated?: () => void
+) => {
+  if (!canvas) return;
   resizeCanvas();
 
   const config = {
-    SIM_RESOLUTION: 128,
-    DYE_RESOLUTION: 1440,
-    CAPTURE_RESOLUTION: 1512,
-    DENSITY_DISSIPATION: 0.5,
-    VELOCITY_DISSIPATION: 3,
+    SIM_RESOLUTION: 64,
+    DYE_RESOLUTION: 256,
+    CAPTURE_RESOLUTION: 512,
+    DENSITY_DISSIPATION: 1.5,
+    VELOCITY_DISSIPATION: 4,
     PRESSURE: 0.1,
-    PRESSURE_ITERATIONS: 20,
+    PRESSURE_ITERATIONS: 10,
     CURL: 3,
-    SPLAT_RADIUS: 0.2,
+    SPLAT_RADIUS: 0.15,
     SPLAT_FORCE: 4000,
-    SHADING: true,
+    SHADING: false,
     COLOR_UPDATE_SPEED: 8,
     PAUSED: false,
     BACK_COLOR: { r: 0.5, g: 0, b: 0 },
@@ -49,11 +53,14 @@ const useFluidCursor = () => {
   }
 
   // Observe theme (class 'dark') toggles to rebuild palette & subtly recolor pointers
-  const themeObserver = new MutationObserver(() => {
-    refreshAccentPalette();
-    pointers.forEach((p) => (p.color = generateColor()));
-  });
-  themeObserver.observe(document.documentElement, {
+  const themeObserver =
+    typeof MutationObserver !== "undefined"
+      ? new MutationObserver(() => {
+          refreshAccentPalette();
+          pointers.forEach((p) => (p.color = generateColor()));
+        })
+      : null;
+  themeObserver?.observe(document.documentElement, {
     attributes: true,
     attributeFilter: ["class"],
   });
@@ -79,6 +86,11 @@ const useFluidCursor = () => {
 
   const { gl, ext } = getWebGLContext(canvas);
 
+  if (!gl || !ext) {
+    themeObserver?.disconnect();
+    return;
+  }
+
   if (!ext.supportLinearFiltering) {
     config.DYE_RESOLUTION = 256;
     config.SHADING = false;
@@ -100,6 +112,10 @@ const useFluidCursor = () => {
         canvas.getContext("webgl", params) ||
         canvas.getContext("experimental-webgl", params);
 
+    if (!gl) {
+      return { gl: null, ext: null };
+    }
+
     let halfFloat;
     let supportLinearFiltering;
     if (isWebGL2) {
@@ -108,6 +124,10 @@ const useFluidCursor = () => {
     } else {
       halfFloat = gl.getExtension("OES_texture_half_float");
       supportLinearFiltering = gl.getExtension("OES_texture_half_float_linear");
+
+      if (!halfFloat) {
+        return { gl: null, ext: null };
+      }
     }
 
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
@@ -132,6 +152,10 @@ const useFluidCursor = () => {
       formatRGBA = getSupportedFormat(gl, gl.RGBA, gl.RGBA, halfFloatTexType);
       formatRG = getSupportedFormat(gl, gl.RGBA, gl.RGBA, halfFloatTexType);
       formatR = getSupportedFormat(gl, gl.RGBA, gl.RGBA, halfFloatTexType);
+    }
+
+    if (!formatRGBA || !formatRG || !formatR) {
+      return { gl: null, ext: null };
     }
 
     return {
@@ -946,21 +970,50 @@ const useFluidCursor = () => {
     displayMaterial.setKeywords(displayKeywords);
   }
 
+  function initializeFirstFrame() {
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+    gl.disable(gl.BLEND);
+    gl.clearColor(0.0, 0.0, 0.0, 0.0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    render(null);
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+  }
+
   updateKeywords();
   initFramebuffers();
+  initializeFirstFrame();
 
   let lastUpdateTime = Date.now();
   let colorUpdateTimer = 0.0;
 
+  let animationId: number;
+  let hasStarted = false;
+  let isDisposed = false;
+
+  function startFluidSimulation() {
+    if (hasStarted || isDisposed) return;
+    hasStarted = true;
+    lastUpdateTime = Date.now();
+    onActivated?.();
+    update();
+  }
+
   function update() {
+    if (isDisposed) return;
+
+    if (canvas.clientWidth === 0 || canvas.clientHeight === 0) {
+      animationId = requestAnimationFrame(update);
+      return;
+    }
+
     const dt = calcDeltaTime();
-    // console.log(dt)
     if (resizeCanvas()) initFramebuffers();
     updateColors(dt);
     applyInputs();
     step(dt);
     render(null);
-    requestAnimationFrame(update);
+    animationId = requestAnimationFrame(update);
   }
 
   function calcDeltaTime() {
@@ -1181,56 +1234,80 @@ const useFluidCursor = () => {
     return radius;
   }
 
-  window.addEventListener("mousedown", (e) => {
+  const listeners: { target: EventTarget; type: string; fn: EventListenerOrEventListenerObject; opts?: boolean | AddEventListenerOptions }[] = [];
+  const addListener = (target: EventTarget, type: string, fn: EventListenerOrEventListenerObject, opts?: boolean | AddEventListenerOptions) => {
+    target.addEventListener(type, fn, opts);
+    listeners.push({ target, type, fn, opts });
+  };
+
+  const dispose = () => {
+    if (isDisposed) return;
+    isDisposed = true;
+    cancelAnimationFrame(animationId);
+    themeObserver?.disconnect();
+    listeners.forEach(({ target, type, fn, opts }) => {
+      target.removeEventListener(type, fn, opts);
+    });
+  };
+
+  const handleMouseDown = (e: MouseEvent) => {
     const pointer = pointers[0];
     const posX = scaleByPixelRatio(e.clientX);
     const posY = scaleByPixelRatio(e.clientY);
     updatePointerDownData(pointer, -1, posX, posY);
     clickSplat(pointer);
-  });
+  };
 
-  document.body.addEventListener("mousemove", function handleFirstMouseMove(e) {
+  addListener(window, "mousedown", handleMouseDown);
+
+  const handleFirstMouseMove = (e: MouseEvent) => {
     const pointer = pointers[0];
     const posX = scaleByPixelRatio(e.clientX);
     const posY = scaleByPixelRatio(e.clientY);
     const color = generateColor();
 
-    update();
+    startFluidSimulation();
     updatePointerMoveData(pointer, posX, posY, color);
 
-    // Remove this event listener after the first mousemove event
     document.body.removeEventListener("mousemove", handleFirstMouseMove);
-  });
+    // Remove from our tracker too
+    const idx = listeners.findIndex(l => l.fn === handleFirstMouseMove);
+    if (idx !== -1) listeners.splice(idx, 1);
+  };
 
-  window.addEventListener("mousemove", (e) => {
+  addListener(document.body, "mousemove", handleFirstMouseMove);
+
+  const handleMouseMove = (e: MouseEvent) => {
     const pointer = pointers[0];
     const posX = scaleByPixelRatio(e.clientX);
     const posY = scaleByPixelRatio(e.clientY);
     const color = pointer.color;
 
     updatePointerMoveData(pointer, posX, posY, color);
-  });
+  };
 
-  document.body.addEventListener(
-    "touchstart",
-    function handleFirstTouchStart(e) {
-      const touches = e.targetTouches;
-      const pointer = pointers[0];
+  addListener(window, "mousemove", handleMouseMove);
 
-      for (let i = 0; i < touches.length; i++) {
-        const posX = scaleByPixelRatio(touches[i].clientX);
-        const posY = scaleByPixelRatio(touches[i].clientY);
+  const handleFirstTouchStart = (e: TouchEvent) => {
+    const touches = e.targetTouches;
+    const pointer = pointers[0];
 
-        update();
-        updatePointerDownData(pointer, touches[i].identifier, posX, posY);
-      }
+    for (let i = 0; i < touches.length; i++) {
+      const posX = scaleByPixelRatio(touches[i].clientX);
+      const posY = scaleByPixelRatio(touches[i].clientY);
 
-      // Remove this event listener after the first touchstart event
-      document.body.removeEventListener("touchstart", handleFirstTouchStart);
+      startFluidSimulation();
+      updatePointerDownData(pointer, touches[i].identifier, posX, posY);
     }
-  );
 
-  window.addEventListener("touchstart", (e) => {
+    document.body.removeEventListener("touchstart", handleFirstTouchStart);
+    const idx = listeners.findIndex(l => l.fn === handleFirstTouchStart);
+    if (idx !== -1) listeners.splice(idx, 1);
+  };
+
+  addListener(document.body, "touchstart", handleFirstTouchStart);
+
+  const handleTouchStart = (e: TouchEvent) => {
     const touches = e.targetTouches;
     const pointer = pointers[0];
     for (let i = 0; i < touches.length; i++) {
@@ -1238,30 +1315,39 @@ const useFluidCursor = () => {
       const posY = scaleByPixelRatio(touches[i].clientY);
       updatePointerDownData(pointer, touches[i].identifier, posX, posY);
     }
-  });
+  };
 
-  window.addEventListener(
-    "touchmove",
-    (e) => {
-      const touches = e.targetTouches;
-      const pointer = pointers[0];
-      for (let i = 0; i < touches.length; i++) {
-        const posX = scaleByPixelRatio(touches[i].clientX);
-        const posY = scaleByPixelRatio(touches[i].clientY);
-        updatePointerMoveData(pointer, posX, posY, pointer.color);
-      }
-    },
-    false
-  );
+  addListener(window, "touchstart", handleTouchStart);
 
-  window.addEventListener("touchend", (e) => {
+  const handleTouchMove = (e: TouchEvent) => {
+    const touches = e.targetTouches;
+    const pointer = pointers[0];
+    for (let i = 0; i < touches.length; i++) {
+      const posX = scaleByPixelRatio(touches[i].clientX);
+      const posY = scaleByPixelRatio(touches[i].clientY);
+      updatePointerMoveData(pointer, posX, posY, pointer.color);
+    }
+  };
+
+  addListener(window, "touchmove", handleTouchMove, false);
+
+  const handleTouchEnd = (e: TouchEvent) => {
     const touches = e.changedTouches;
     const pointer = pointers[0];
 
     for (let i = 0; i < touches.length; i++) {
       updatePointerUpData(pointer);
     }
-  });
+  };
+
+  addListener(window, "touchend", handleTouchEnd);
+
+  const handleLifecycleDispose = () => {
+    canvas.style.opacity = "0";
+    dispose();
+  };
+
+  addListener(window, "beforeunload", handleLifecycleDispose);
 
   function updatePointerDownData(pointer, id, posX, posY) {
     pointer.id = id;
@@ -1464,6 +1550,10 @@ const useFluidCursor = () => {
     }
     return hash;
   }
-};
+
+  return () => {
+    dispose();
+  };
+}
 
 export default useFluidCursor;

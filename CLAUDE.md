@@ -2,110 +2,156 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Development commands
+## Commands
 
 - Install dependencies: `npm install`
-- Start the dev server: `npm run dev`
-- Build for production: `npm run build`
-- Start the production server: `npm run start`
-- Run lint: `npm run lint`
-- Run the full test suite: `npm test`
-- Run Jest in watch mode: `npm run test:watch`
-- Run test coverage: `npm run test:coverage`
-- Run Prettier check: `npm run format:check`
-- Fix formatting: `npm run format:fix`
-- Generate sitemap/robots manually: `npm run sitemap`
-- Run bundle analysis build: `npm run analyze`
-- Run TypeScript without emitting: `npx tsc --noEmit`
+- Start dev server: `npm run dev`
+- Build production app: `npm run build`
+- Start production server: `npm run start`
+- Lint repository: `npm run lint`
+- Lint one file: `npx eslint src/components/Navbar.tsx`
+- Lint multiple files: `npx eslint src/app/page.tsx src/app/api/contact/route.ts`
 
-### Single-test commands
+## Tests
 
-- Run one test file: `npm test -- src/components/chat/__tests__/navigation-indicator.test.tsx`
-- Run tests matching a name: `npm test -- -t "tool execution"`
+There is currently no test runner configured.
 
-## Environment and build notes
+- No `test` script exists in `package.json`
+- No Jest / Vitest / Playwright / Cypress config is present
+- No single-test command exists yet
 
-- Copy `.env.example` to `.env.local` for local development.
-- The AI chat API expects `LLM_API_KEY`; `LLM_BASE_URL` is optional for OpenAI-compatible providers.
-- Contact form email delivery uses `NODEMAILER_USER` and `NODEMAILER_PASS`.
-- `npm run build` automatically triggers `postbuild`, which runs `npm run sitemap`.
-- `next.config.js` sets `eslint.ignoreDuringBuilds = true`, so a successful production build does not guarantee lint is clean.
-- `BUILD_STANDALONE=true` enables Next.js standalone output.
-- `ANALYZE=true` enables the bundle analyzer.
+For meaningful changes, use:
 
-## High-level architecture
+- `npm run lint`
+- `npm run build`
 
-This is a **Next.js 15 Pages Router** portfolio site with a strong emphasis on animation, SEO, and an AI-driven chat assistant that can trigger structured UI actions on the site.
+## Stack
 
-### App shell and routing
+- Next.js 16 App Router
+- React 19
+- TypeScript (`strict: true`)
+- Tailwind CSS v4
+- Framer Motion for animation
+- next-themes for dark mode
+- Radix/shadcn-style UI primitives under `src/components/ui`
+- Resend for contact email delivery
+- LLM-backed “AI Twin” chat via `src/app/api/chat/route.ts`
 
-- `src/pages/_app.tsx` is the main composition root.
-  - Wraps the app in `AnimationGateProvider`, `ChatProvider`, and `ThemeProvider`.
-  - Configures `DefaultSeo` from `src/data/siteMetaData.mjs`.
-  - Mounts global route-transition motion and Vercel Analytics.
-- `src/layout/main-layout.tsx` provides the shared shell: welcome overlay, navbar, footer, skip link, and floating chat button.
-- Routes use the **Pages Router** under `src/pages/`, including API routes in `src/pages/api/`.
+## Architecture
 
-### AI chat and tool-action system
+### App shell
 
-The most important non-standard architecture in this repo is the chat/tool pipeline.
+- `src/app/layout.tsx` owns global metadata, viewport config, JSON-LD injection, theme bootstrapping, skip link, and wraps the app with `SmoothScroll` and `Providers`.
+- `src/app/providers.tsx` configures class-based theming via `next-themes` and mounts the global Sonner toaster.
+- `src/app/page.tsx` is intentionally compositional: it stitches together the landing-page sections plus the floating AI chat.
 
-- `src/pages/api/chat.ts` handles chat requests.
-  - Builds a typed `ToolContext` from route/theme/user state.
-  - Initializes the tool registry.
-  - Calls the LLM through the `openai` SDK using `LLM_API_KEY` and optional `LLM_BASE_URL`.
-  - Executes returned tool calls and then performs a follow-up model call so the assistant can respond naturally after tool execution.
-  - Applies rate limiting before model execution.
-- `src/types/tools.ts` defines the core contracts: `ToolContext`, `ToolAction`, `ToolResult`, `ToolCall`, and tool execution config/stats.
-- `src/lib/tools/` contains the tool implementations and registry logic.
-- `src/lib/tools/context-aware-tool-registry` is responsible for contextual tool availability and page detection.
-- `src/components/chat/` contains the floating assistant UI, action indicators, feedback panels, and related chat interaction components.
-- `src/config/ai.ts` contains model/system prompt configuration.
-- `src/utility/ai-chat-responses.ts` contains fallback/response helpers referenced by the README and chat flow.
+### Content model
 
-When extending chat behavior, preserve the typed action pipeline rather than adding ad hoc UI-side behavior.
+The portfolio is mostly data-driven.
 
-### State, theming, and animation
+- `src/data/portfolio.ts` is the source of truth for personal info, experience, projects, skills, stats, and initial AI chat suggestions.
+- Multiple parts of the app derive from this file: visible homepage sections, contact links, AI twin context, and SEO metadata.
+- When updating resume links, social links, project entries, or career facts, start here and then verify any dependent SEO/chat behavior.
 
-- Theme switching is handled by `next-themes` with `attribute="class"`.
-- Global styling lives in `src/styles/globals.css` and is based on Tailwind + CSS custom properties.
-- Tailwind configuration lives in `tailwind.config.js`.
-- Framer Motion is the primary animation system across page transitions, reveals, overlays, and chat interactions.
-- Shared animation primitives live in `src/animation/`.
-- `src/contexts/animation-gate.tsx` coordinates when animations should run during route transitions and welcome-screen flow.
+### SEO and metadata
 
-### Content and data model
+SEO is centralized rather than scattered across sections.
 
-- Site content is largely **data-driven** through `src/data/` rather than hard-coded in page JSX.
-- `src/data/siteMetaData.mjs` is the source of truth for site URL, SEO metadata, social links, and verification tags.
-- Navigation structure is sourced from `src/data/navigationRoutes`.
-- Projects, experience, skills, and similar portfolio content are organized as source data and rendered by components.
+- `src/lib/seo/site.ts` defines canonical site metadata, keywords, geo info, and identity fields.
+- `src/lib/seo/jsonld.ts` builds the schema graph for Website, WebPage, Person, and project list entries.
+- `src/app/layout.tsx`, `src/app/sitemap.ts`, and `src/app/robots.ts` consume that SEO layer.
 
-### SEO and generated artifacts
+### Homepage composition
 
-- SEO defaults are configured in `_app.tsx` via `next-seo` and `src/data/siteMetaData.mjs`.
-- `src/scripts/generateSitemap.mjs` generates `sitemap.xml` and `robots.txt`.
-- SEO generation is part of the normal production build through `postbuild`.
+The homepage is a single long-form landing page with section-based navigation.
 
-### API routes and backend behavior
+- `Navbar` scrolls to hash sections and tracks the active section in view.
+- Most visible sections (`HeroSection`, `AboutSection`, `ExperienceSection`, `ProjectsSection`, `SkillsSection`, `AITwinSection`, `ContactSection`) are presentation components backed by portfolio data.
+- `SmoothScroll` installs Lenis globally and intercepts in-page hash navigation, so section links should use the existing scroll helpers instead of custom scrolling behavior.
 
-- `src/pages/api/chat.ts` powers the AI assistant.
-- `src/pages/api/sendmail.ts` handles contact-form email delivery.
-- `src/utility/rate-limiter.ts` provides the in-memory/LRU-based rate limiter used by API routes.
+### AI Twin flow
 
-### Testing setup
+The AI Twin is the most application-like feature in the repo.
 
-- Jest is configured through `jest.config.js` using `next/jest`.
-- Tests run in `jest-environment-jsdom`.
-- `jest.setup.js` loads `@testing-library/jest-dom`.
-- The repo primarily uses **Jest + React Testing Library** for component and chat interaction tests.
-- Tests are colocated using `__tests__` directories and `*.test.*` / `*.spec.*` naming.
+- `src/components/AITwinChat.tsx` contains the chat UI, localStorage-backed conversation persistence, retry UX, markdown rendering, suggestion chips, and mobile/desktop dialog behavior.
+- `src/components/AITwinSection.tsx` is the landing-page CTA that opens the chat via a custom window event.
+- `src/app/api/chat/route.ts` validates input, rate-limits requests, trims conversation history, calls the upstream LLM provider, and generates follow-up suggestions.
+- `src/lib/ai-config.ts` contains the system prompts and model selection.
+- `src/lib/ai-twin.ts` builds the portfolio knowledge context, normalizes project matching, manages stored chat history, and injects contextual links into AI responses.
 
-## Repo-specific guidance for future Claude sessions
+Important constraint: the AI assistant is intentionally scoped to Nikunj’s professional profile and project history. If you change portfolio data or project naming, review both the prompt context and link-generation logic.
 
-- Preserve the existing **typed tool/action architecture** when modifying the AI assistant.
-- Prefer updating data in `src/data/` and config files over hard-coding portfolio content in components.
-- Keep animation changes aligned with the existing Framer Motion + animation-gate structure instead of introducing parallel animation systems.
-- If you change SEO-relevant routes or metadata, check whether sitemap generation or metadata files also need updates.
-- When working on deployment or production behavior, remember that the GitHub workflow deploys to Vercel and the app is configured with Vercel-oriented assumptions.
-- If you need a clean typecheck, run `npx tsc --noEmit` explicitly; the normal build path does not enforce lint cleanliness.
+### Contact flow
+
+The contact form is split cleanly between client validation and server delivery.
+
+- `src/components/ContactSection.tsx` manages the form UI, client-side validation, timeout handling, and toast feedback.
+- `src/lib/contact.ts` defines the shared Zod schema and allowed contact reasons.
+- `src/app/api/contact/route.ts` re-validates the payload, rate-limits submissions, builds sanitized email content, and sends via Resend.
+- `src/lib/rate-limit.ts` provides the shared in-memory rate limiting helpers used by both API routes.
+
+### Styling and UI primitives
+
+- Global design tokens, cursors, utility classes, and theme variables live in `src/app/globals.css`.
+- Reusable low-level primitives are in `src/components/ui/`; prefer extending those before creating new base components.
+- The site relies heavily on Tailwind utility classes plus a few shared helpers like `cn()` from `src/lib/utils.ts`.
+- Motion and reduced-motion support are already wired into key components; preserve that behavior when editing animated UI.
+
+## Environment variables
+
+The app currently uses these environment variables:
+
+- `RESEND_API_KEY`
+- `CONTACT_EMAIL_FROM`
+- `CONTACT_EMAIL_TO`
+- `AI_MODEL`
+- `LLM_API_KEY`
+- `LLM_BASE_URL`
+
+## Working conventions
+
+- Use `npm`, not another package manager.
+- Prefer `@/*` imports; `tsconfig.json` maps `@/*` to `src/*`.
+- Preserve the local formatting style of the file you touch; there is no Prettier config.
+- Default to server components; add `"use client"` only when hooks, browser APIs, animation, or event-driven UI require it.
+- For backend/API changes, keep the existing pattern of Zod validation + `NextResponse.json(...)` + explicit status codes.
+- If you change runtime behavior in a meaningful way, validate with `npm run lint` and `npm run build`.
+
+<!-- code-review-graph MCP tools -->
+## MCP Tools: code-review-graph
+
+**IMPORTANT: This project has a knowledge graph. ALWAYS use the
+code-review-graph MCP tools BEFORE using Grep/Glob/Read to explore
+the codebase.** The graph is faster, cheaper (fewer tokens), and gives
+you structural context (callers, dependents, test coverage) that file
+scanning cannot.
+
+### When to use graph tools FIRST
+
+- **Exploring code**: `semantic_search_nodes` or `query_graph` instead of Grep
+- **Understanding impact**: `get_impact_radius` instead of manually tracing imports
+- **Code review**: `detect_changes` + `get_review_context` instead of reading entire files
+- **Finding relationships**: `query_graph` with callers_of/callees_of/imports_of/tests_for
+- **Architecture questions**: `get_architecture_overview` + `list_communities`
+
+Fall back to Grep/Glob/Read **only** when the graph doesn't cover what you need.
+
+### Key Tools
+
+| Tool | Use when |
+|------|----------|
+| `detect_changes` | Reviewing code changes — gives risk-scored analysis |
+| `get_review_context` | Need source snippets for review — token-efficient |
+| `get_impact_radius` | Understanding blast radius of a change |
+| `get_affected_flows` | Finding which execution paths are impacted |
+| `query_graph` | Tracing callers, callees, imports, tests, dependencies |
+| `semantic_search_nodes` | Finding functions/classes by name or keyword |
+| `get_architecture_overview` | Understanding high-level codebase structure |
+| `refactor_tool` | Planning renames, finding dead code |
+
+### Workflow
+
+1. The graph auto-updates on file changes (via hooks).
+2. Use `detect_changes` for code review.
+3. Use `get_affected_flows` to understand impact.
+4. Use `query_graph` pattern="tests_for" to check coverage.
