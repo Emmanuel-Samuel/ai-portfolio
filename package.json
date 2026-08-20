@@ -13,6 +13,8 @@
     "lint:fix": "eslint --fix"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^4.0.40",
+    "@ai-sdk/react": "^4.0.73",
     "@content-collections/mdx": "^0.2.2",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-avatar": "^1.1.11",
@@ -21,6 +23,7 @@
     "@radix-ui/react-slot": "^1.2.4",
     "@radix-ui/react-tooltip": "^1.2.8",
     "@tailwindcss/postcss": "^4.1.18",
+    "ai": "^7.0.70",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "content-collections": "^0.2.1",
