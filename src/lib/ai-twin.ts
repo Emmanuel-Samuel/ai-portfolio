@@ -1,9 +1,9 @@
 import { about, experiences, personalInfo, projects, skillCategories, stats } from "@/data/portfolio";
 
 export const CHAT_MEMORY_WINDOW = 10;
-export const CHAT_STORAGE_KEY = "nikunj-ai-twin-chat";
+export const CHAT_STORAGE_KEY = "emmanuel-ai-twin-chat";
 export const PROJECT_ANCHOR_PREFIX = "project-";
-export const WELCOME_MESSAGE = "Hi — I’m Nikunj’s AI twin. I can give you a quick recruiter summary, walk through a project, or explain how he approaches backend systems, full-stack platforms, gateways, AIEM, platform agent memory, and GenAI products. You can also [jump to projects](#projects) or [download the resume](/Nikunj_Resume.pdf).";
+export const WELCOME_MESSAGE = `Hi — I'm Emmanuel's AI twin. I can give you a quick recruiter summary, walk through a project, or explain how he approaches LLM infrastructure, agents, and RAG systems. You can also [jump to projects](#projects) or [download the resume](${personalInfo.resumeUrl}).`;
 
 type ConversationWindowMessage = {
   content: string;
@@ -205,9 +205,9 @@ function buildInlineLinkSentence(links: InlineLink[]) {
   const clauses = links.map((link) => {
     switch (link.kind) {
       case "linkedin":
-        return `view Nikunj's [LinkedIn](${link.href})`;
+        return `view Emmanuel's [LinkedIn](${link.href})`;
       case "github":
-        return `browse Nikunj's [GitHub](${link.href})`;
+        return `browse Emmanuel's [GitHub](${link.href})`;
       case "resume":
         return `download the [resume](${link.href})`;
       case "contact":

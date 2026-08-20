@@ -8,7 +8,7 @@ import logo from "@/assets/logo.png";
 
 import { SpotlightCard } from "@/components/ui/spotlight-card";
 
-const profileFocus = ["Backend systems", "Full-stack platforms", "Production GenAI"];
+const profileFocus = ["LLM infrastructure", "Agentic systems", "RAG pipelines"];
 
 const AboutSection = () => {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
@@ -45,13 +45,13 @@ const AboutSection = () => {
                     <div>
                       <p className="mb-1 font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground">About</p>
                       <h2 className="text-4xl font-bold tracking-tight sm:text-5xl">
-                        <span className="text-gradient">Nikunj</span>
+                        <span className="text-gradient">Emmanuel</span>
                       </h2>
                     </div>
                   </div>
 
                   <p className="mb-6 text-sm font-medium leading-relaxed text-foreground/85 sm:text-base">
-                    {personalInfo.role} focused on backend architecture, full-stack product delivery, AI security, and reliable agent systems.
+                    {personalInfo.role} focused on LLM infrastructure, autonomous agents, and retrieval-augmented generation systems.
                   </p>
 
                   <div className="flex flex-wrap gap-2">
@@ -75,7 +75,7 @@ const AboutSection = () => {
               className="prose prose-invert prose-lg max-w-none text-muted-foreground leading-relaxed"
             >
               <p className="text-xl sm:text-2xl font-medium text-foreground tracking-tight leading-snug mb-6" style={{ textWrap: "pretty" }}>
-                I build backend-heavy AI products and platform systems where APIs, reliability, security, observability, retrieval quality, and user experience all matter at the same time.
+                I build LLM infrastructure, autonomous agents, and retrieval-augmented generation systems where reliability, retrieval quality, and user experience all matter at the same time.
               </p>
               <p style={{ textWrap: "pretty" }}>
                 {about.summary}
@@ -90,11 +90,11 @@ const AboutSection = () => {
                   </div>
                   <div>
                     <p className="font-mono text-xs uppercase tracking-[0.25em] text-primary/80">Recognition</p>
-                    <h3 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">AI Ninja Award at ArmorCode</h3>
+                    <h3 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">TODO: Award or Recognition Title</h3>
                   </div>
                 </div>
                 <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-                  First person to receive ArmorCode&apos;s AI Ninja Award, and the youngest person to receive an award at the company.
+                  TODO: replace with a real award, recognition, or milestone, or remove this card if none applies yet.
                 </p>
               </div>
             </SpotlightCard>

@@ -58,7 +58,7 @@ type ChatRequestError = Error & {
 const WELCOME = WELCOME_MESSAGE;
 const INITIAL_MESSAGES: Message[] = [{ id: "welcome", role: "assistant", content: WELCOME }];
 const FOCUSABLE_SELECTOR = 'button:not([disabled]), [href], input:not([disabled]), [tabindex]:not([tabindex="-1"])';
-const OFFLINE_ASSISTANT_MESSAGE = "Nikunj's AI twin is offline right now. You can still browse the projects, review backend and platform work, use the contact section, or download the resume while the service is unavailable.";
+const OFFLINE_ASSISTANT_MESSAGE = "Emmanuel's AI twin is offline right now. You can still browse the projects, review his work, use the contact section, or download the resume while the service is unavailable.";
 
 function createMessageId() {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
@@ -707,7 +707,7 @@ const AITwinChat = () => {
             <Bot className="w-4 h-4 text-primary" />
           </div>
           <div>
-            <p id="ai-twin-title" className="text-sm font-semibold">Nikunj&apos;s AI Twin</p>
+            <p id="ai-twin-title" className="text-sm font-semibold">Emmanuel&apos;s AI Twin</p>
             <div className="flex items-center gap-1.5">
               <span className={`w-1.5 h-1.5 rounded-full motion-reduce:animate-none ${chatStatusDotClass}`} />
               <p id="ai-twin-status" className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">{chatStatusLabel}</p>
@@ -915,7 +915,7 @@ const AITwinChat = () => {
               void handleSend();
             }}
             placeholder={canSendMessages ? "Type a message..." : "AI chat is currently unavailable."}
-            aria-label="Message Nikunj's AI twin"
+            aria-label="Message Emmanuel's AI twin"
             autoComplete="off"
             disabled={!canSendMessages || isLoading}
             className="flex-1 bg-background/50 border border-border/40 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all placeholder:text-muted-foreground/50 disabled:cursor-not-allowed disabled:opacity-60"

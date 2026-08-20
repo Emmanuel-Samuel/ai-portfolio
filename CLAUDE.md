@@ -105,7 +105,7 @@ The app currently uses these environment variables:
 - `CONTACT_EMAIL_FROM`
 - `CONTACT_EMAIL_TO`
 - `AI_MODEL`
-- `LLM_API_KEY`
+- `ANTHROPIC_API_KEY`
 - `LLM_BASE_URL`
 
 ## Working conventions

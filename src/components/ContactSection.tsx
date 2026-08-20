@@ -27,13 +27,13 @@ const SOCIAL_LINKS = [
   {
     icon: Linkedin,
     label: "LinkedIn",
-    value: "linkedin.com/in/nikunj-khitha",
+    value: "LinkedIn", // TODO: replace with your real LinkedIn handle once personalInfo.linkedin is set
     href: personalInfo.linkedin,
   },
   {
     icon: Github,
     label: "GitHub",
-    value: "github.com/Nikunj2003",
+    value: "github.com/Emmanuel-Samuel",
     href: personalInfo.github,
   },
 ];
@@ -144,7 +144,7 @@ const ContactSection = () => {
             Get in <span className="text-gradient">Touch</span>
           </h2>
           <p className="text-muted-foreground max-w-xl mx-auto text-base leading-relaxed">
-            Open to backend, full-stack, platform, AI security, observability, and GenAI product engineering opportunities, as well as thoughtful collaborations.
+            Open to Software Engineering, AI/ML Engineering, and LLM infrastructure opportunities, as well as thoughtful collaborations.
           </p>
         </motion.div>
 
@@ -178,7 +178,7 @@ const ContactSection = () => {
                 <div>
                   <h3 className="text-3xl font-bold mb-3 tracking-tight">Let&apos;s Build Something</h3>
                   <p className="text-base text-muted-foreground leading-relaxed" style={{ textWrap: "pretty" }}>
-                    If you&apos;re hiring for backend, full-stack, platform, AI security, observability, or GenAI product engineering work, I&apos;d love to talk. I&apos;m also open to thoughtful collaborations and open-source conversations.
+                    If you&apos;re hiring for software engineering, AI/ML engineering, or LLM infrastructure work, I&apos;d love to talk. I&apos;m also open to thoughtful collaborations and open-source conversations.
                   </p>
                 </div>
 

@@ -16,7 +16,7 @@ interface Message {
 }
 
 interface ChatCompletionMessageParam {
-  role: "system" | "user" | "assistant";
+  role: "user" | "assistant";
   content: string;
 }
 
@@ -279,8 +279,23 @@ async function postChatCompletion(
   }
 }
 
+const ANTHROPIC_VERSION = "2023-06-01";
+const DEFAULT_MAX_TOKENS = 1024;
+const SUGGESTION_MAX_TOKENS = 300;
+
 function isChatConfigured() {
-  return Boolean(process.env.LLM_API_KEY?.trim());
+  return Boolean(process.env.ANTHROPIC_API_KEY?.trim());
+}
+
+function getAnthropicTextContent(responseData: {
+  content?: Array<{ type: string; text?: string }>;
+}) {
+  return (
+    responseData.content
+      ?.filter((block) => block.type === "text" && typeof block.text === "string")
+      .map((block) => block.text)
+      .join("") || ""
+  );
 }
 
 export async function GET() {
@@ -330,30 +345,29 @@ export async function POST(request: Request) {
 
     const { message, conversationHistory } = parsedBody.data;
 
-    const apiKey = process.env.LLM_API_KEY?.trim();
+    const apiKey = process.env.ANTHROPIC_API_KEY?.trim();
     if (!apiKey) {
-      console.warn("LLM API key not configured");
+      console.warn("Anthropic API key not configured");
       return createChatErrorResponse(
         503,
         "service_unavailable",
-        "The AI service is not configured right now. Please contact Nikunj directly if you need help.",
+        "The AI service is not configured right now. Please contact Emmanuel directly if you need help.",
         rateLimitHeaders,
         false
       );
     }
 
-    const invokeUrl = process.env.LLM_BASE_URL?.trim() || "https://integrate.api.nvidia.com/v1/chat/completions";
+    const invokeUrl = process.env.LLM_BASE_URL?.trim() || "https://api.anthropic.com/v1/messages";
     const headers = {
-      "Authorization": `Bearer ${apiKey}`,
+      "x-api-key": apiKey,
+      "anthropic-version": ANTHROPIC_VERSION,
       "Accept": "application/json",
       "Content-Type": "application/json"
     };
 
     const recentMessages = trimConversationHistory(conversationHistory, CHAT_MEMORY_WINDOW);
 
-    const messages: ChatCompletionMessageParam[] = [
-      { role: "system", content: SYSTEM_PROMPT },
-    ];
+    const messages: ChatCompletionMessageParam[] = [];
 
     recentMessages.forEach((msg) => {
       messages.push({
@@ -373,7 +387,9 @@ export async function POST(request: Request) {
         headers,
         {
           model: AI_MODEL,
+          system: SYSTEM_PROMPT,
           messages,
+          max_tokens: DEFAULT_MAX_TOKENS,
           top_p: 0.7,
           temperature: 0.7,
         },
@@ -416,7 +432,7 @@ export async function POST(request: Request) {
         return createChatErrorResponse(
           503,
           "upstream_auth_error",
-          "The AI service is misconfigured right now. Please contact Nikunj if this keeps happening.",
+          "The AI service is misconfigured right now. Please contact Emmanuel if this keeps happening.",
           rateLimitHeaders,
           false
         );
@@ -431,7 +447,7 @@ export async function POST(request: Request) {
     }
 
     const responseData = await response.json();
-    let aiResponse = responseData.choices?.[0]?.message?.content || "";
+    let aiResponse = getAnthropicTextContent(responseData);
 
     if (!aiResponse) {
       aiResponse = "I apologize, but I'm having trouble responding right now. Please try asking your question again.";
@@ -495,7 +511,6 @@ async function generateAISuggestions(
     );
 
     const suggestionMessages: ChatCompletionMessageParam[] = [
-      { role: "system", content: SUGGESTION_SYSTEM_PROMPT },
       {
         role: "user",
         content: `Conversation so far (truncated to recent):\n${recentMessages
@@ -529,7 +544,9 @@ Rules:
       headers,
       {
         model: AI_MODEL,
+        system: SUGGESTION_SYSTEM_PROMPT,
         messages: suggestionMessages,
+        max_tokens: SUGGESTION_MAX_TOKENS,
         temperature: 0.7,
         top_p: 0.9,
       },
@@ -541,7 +558,7 @@ Rules:
     }
 
     const data = await suggestionResp.json();
-    let raw = data.choices?.[0]?.message?.content?.trim() || "[]";
+    let raw = getAnthropicTextContent(data).trim() || "[]";
     
     raw = raw.replace(/^```(?:json)?/i, "").replace(/```$/i, "").trim();
     
