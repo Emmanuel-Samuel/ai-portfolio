@@ -1,157 +1,109 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Personal portfolio site for Emmanuel Samuel — a single long-form Next.js 16 landing page with an LLM-backed "AI Twin" chat and a Resend-backed contact form.
 
-## Commands
+Stack: Next.js 16 App Router, React 19, TypeScript (`strict`), Tailwind v4, Framer Motion, next-themes, Radix/shadcn-style primitives.
 
-- Install dependencies: `npm install`
-- Start dev server: `npm run dev`
-- Build production app: `npm run build`
-- Start production server: `npm run start`
-- Lint repository: `npm run lint`
-- Lint one file: `npx eslint src/components/Navbar.tsx`
-- Lint multiple files: `npx eslint src/app/page.tsx src/app/api/contact/route.ts`
+## Project map
 
-## Tests
+- `src/app/` — App Router. `layout.tsx` (metadata, JSON-LD, theming, `SmoothScroll`), `page.tsx` (section composition), `providers.tsx`
+- `src/app/api/chat/` — AI Twin endpoint
+- `src/app/api/contact/` — contact form endpoint
+- `src/data/portfolio.ts` — source of truth for all personal, project, and career data
+- `src/components/` — landing-page sections; `src/components/ui/` holds low-level primitives
+- `src/lib/seo/` — canonical site metadata (`site.ts`) and schema graph (`jsonld.ts`)
+- `src/lib/` — `ai-config.ts` (prompts, model), `ai-twin.ts` (knowledge context, link injection), `contact.ts` (Zod schema), `rate-limit.ts` (shared, used by both routes), `utils.ts` (`cn()`)
+- `src/app/globals.css` — design tokens, cursors, theme variables
 
-There is currently no test runner configured.
+<important if="you need to run commands to build, test, lint, or verify a change">
 
-- No `test` script exists in `package.json`
-- No Jest / Vitest / Playwright / Cypress config is present
-- No single-test command exists yet
+| Command | What it does |
+|---|---|
+| `npm install` | Install dependencies |
+| `npm run dev` | Start dev server |
+| `npm run build` | Build production app |
+| `npm run start` | Start production server |
+| `npm run lint` | Lint repository |
+| `npx eslint src/components/Navbar.tsx` | Lint one file |
+| `npx eslint src/app/page.tsx src/app/api/contact/route.ts` | Lint multiple files |
 
-For meaningful changes, use:
+No test runner is configured — there is no `test` script and no Jest/Vitest/Playwright/Cypress config. Verify meaningful changes with `npm run lint` and `npm run build`.
 
-- `npm run lint`
-- `npm run build`
+Use `npm`, not another package manager.
+</important>
 
-## Stack
+<important if="you are exploring this codebase, tracing relationships, or reviewing changes">
 
-- Next.js 16 App Router
-- React 19
-- TypeScript (`strict: true`)
-- Tailwind CSS v4
-- Framer Motion for animation
-- next-themes for dark mode
-- Radix/shadcn-style UI primitives under `src/components/ui`
-- Resend for contact email delivery
-- LLM-backed “AI Twin” chat via `src/app/api/chat/route.ts`
-
-## Architecture
-
-### App shell
-
-- `src/app/layout.tsx` owns global metadata, viewport config, JSON-LD injection, theme bootstrapping, skip link, and wraps the app with `SmoothScroll` and `Providers`.
-- `src/app/providers.tsx` configures class-based theming via `next-themes` and mounts the global Sonner toaster.
-- `src/app/page.tsx` is intentionally compositional: it stitches together the landing-page sections plus the floating AI chat.
-
-### Content model
-
-The portfolio is mostly data-driven.
-
-- `src/data/portfolio.ts` is the source of truth for personal info, experience, projects, skills, stats, and initial AI chat suggestions.
-- Multiple parts of the app derive from this file: visible homepage sections, contact links, AI twin context, and SEO metadata.
-- When updating resume links, social links, project entries, or career facts, start here and then verify any dependent SEO/chat behavior.
-
-### SEO and metadata
-
-SEO is centralized rather than scattered across sections.
-
-- `src/lib/seo/site.ts` defines canonical site metadata, keywords, geo info, and identity fields.
-- `src/lib/seo/jsonld.ts` builds the schema graph for Website, WebPage, Person, and project list entries.
-- `src/app/layout.tsx`, `src/app/sitemap.ts`, and `src/app/robots.ts` consume that SEO layer.
-
-### Homepage composition
-
-The homepage is a single long-form landing page with section-based navigation.
-
-- `Navbar` scrolls to hash sections and tracks the active section in view.
-- Most visible sections (`HeroSection`, `AboutSection`, `ExperienceSection`, `ProjectsSection`, `SkillsSection`, `AITwinSection`, `ContactSection`) are presentation components backed by portfolio data.
-- `SmoothScroll` installs Lenis globally and intercepts in-page hash navigation, so section links should use the existing scroll helpers instead of custom scrolling behavior.
-
-### AI Twin flow
-
-The AI Twin is the most application-like feature in the repo.
-
-- `src/components/AITwinChat.tsx` contains the chat UI, localStorage-backed conversation persistence, retry UX, markdown rendering, suggestion chips, and mobile/desktop dialog behavior.
-- `src/components/AITwinSection.tsx` is the landing-page CTA that opens the chat via a custom window event.
-- `src/app/api/chat/route.ts` validates input, rate-limits requests, trims conversation history, calls the upstream LLM provider, and generates follow-up suggestions.
-- `src/lib/ai-config.ts` contains the system prompts and model selection.
-- `src/lib/ai-twin.ts` builds the portfolio knowledge context, normalizes project matching, manages stored chat history, and injects contextual links into AI responses.
-
-Important constraint: the AI assistant is intentionally scoped to Nikunj’s professional profile and project history. If you change portfolio data or project naming, review both the prompt context and link-generation logic.
-
-### Contact flow
-
-The contact form is split cleanly between client validation and server delivery.
-
-- `src/components/ContactSection.tsx` manages the form UI, client-side validation, timeout handling, and toast feedback.
-- `src/lib/contact.ts` defines the shared Zod schema and allowed contact reasons.
-- `src/app/api/contact/route.ts` re-validates the payload, rate-limits submissions, builds sanitized email content, and sends via Resend.
-- `src/lib/rate-limit.ts` provides the shared in-memory rate limiting helpers used by both API routes.
-
-### Styling and UI primitives
-
-- Global design tokens, cursors, utility classes, and theme variables live in `src/app/globals.css`.
-- Reusable low-level primitives are in `src/components/ui/`; prefer extending those before creating new base components.
-- The site relies heavily on Tailwind utility classes plus a few shared helpers like `cn()` from `src/lib/utils.ts`.
-- Motion and reduced-motion support are already wired into key components; preserve that behavior when editing animated UI.
-
-## Environment variables
-
-The app currently uses these environment variables:
-
-- `RESEND_API_KEY`
-- `CONTACT_EMAIL_FROM`
-- `CONTACT_EMAIL_TO`
-- `AI_MODEL`
-- `ANTHROPIC_API_KEY`
-- `LLM_BASE_URL`
-
-## Working conventions
-
-- Use `npm`, not another package manager.
-- Prefer `@/*` imports; `tsconfig.json` maps `@/*` to `src/*`.
-- Preserve the local formatting style of the file you touch; there is no Prettier config.
-- Default to server components; add `"use client"` only when hooks, browser APIs, animation, or event-driven UI require it.
-- For backend/API changes, keep the existing pattern of Zod validation + `NextResponse.json(...)` + explicit status codes.
-- If you change runtime behavior in a meaningful way, validate with `npm run lint` and `npm run build`.
-
-<!-- code-review-graph MCP tools -->
-## MCP Tools: code-review-graph
-
-**IMPORTANT: This project has a knowledge graph. ALWAYS use the
-code-review-graph MCP tools BEFORE using Grep/Glob/Read to explore
-the codebase.** The graph is faster, cheaper (fewer tokens), and gives
-you structural context (callers, dependents, test coverage) that file
-scanning cannot.
-
-### When to use graph tools FIRST
-
-- **Exploring code**: `semantic_search_nodes` or `query_graph` instead of Grep
-- **Understanding impact**: `get_impact_radius` instead of manually tracing imports
-- **Code review**: `detect_changes` + `get_review_context` instead of reading entire files
-- **Finding relationships**: `query_graph` with callers_of/callees_of/imports_of/tests_for
-- **Architecture questions**: `get_architecture_overview` + `list_communities`
-
-Fall back to Grep/Glob/Read **only** when the graph doesn't cover what you need.
-
-### Key Tools
+This project has a knowledge graph. Use the `code-review-graph` MCP tools **before** Grep/Glob/Read — the graph is cheaper and gives structural context (callers, dependents, coverage) that file scanning cannot. It auto-updates on file changes via hooks. Fall back to Grep/Glob/Read only when the graph doesn't cover what you need.
 
 | Tool | Use when |
-|------|----------|
-| `detect_changes` | Reviewing code changes — gives risk-scored analysis |
-| `get_review_context` | Need source snippets for review — token-efficient |
+|---|---|
+| `semantic_search_nodes` | Finding functions/classes by name or keyword |
+| `query_graph` | Tracing callers_of / callees_of / imports_of / tests_for |
+| `get_architecture_overview`, `list_communities` | Understanding high-level structure |
+| `detect_changes` | Reviewing changes — gives risk-scored analysis |
+| `get_review_context` | Need source snippets for review, token-efficiently |
 | `get_impact_radius` | Understanding blast radius of a change |
 | `get_affected_flows` | Finding which execution paths are impacted |
-| `query_graph` | Tracing callers, callees, imports, tests, dependencies |
-| `semantic_search_nodes` | Finding functions/classes by name or keyword |
-| `get_architecture_overview` | Understanding high-level codebase structure |
 | `refactor_tool` | Planning renames, finding dead code |
+</important>
 
-### Workflow
+<important if="you are updating resume links, social links, project entries, or any career fact">
 
-1. The graph auto-updates on file changes (via hooks).
-2. Use `detect_changes` for code review.
-3. Use `get_affected_flows` to understand impact.
-4. Use `query_graph` pattern="tests_for" to check coverage.
+`src/data/portfolio.ts` is the source of truth. Homepage sections, contact links, AI Twin context, and SEO metadata all derive from it — after editing, verify the dependent SEO and chat behavior.
+</important>
+
+<important if="you are changing the AI Twin chat, its prompts, or its knowledge context">
+
+- `src/components/AITwinChat.tsx` — chat UI, localStorage conversation persistence, retry UX, markdown rendering, suggestion chips, mobile/desktop dialog behavior
+- `src/components/AITwinSection.tsx` — landing CTA that opens the chat via a custom window event
+- `src/app/api/chat/route.ts` — input validation, rate limiting, history trimming, upstream LLM call, follow-up suggestions
+- `src/lib/ai-config.ts` — system prompts and model selection
+- `src/lib/ai-twin.ts` — portfolio knowledge context, project-name matching, stored history, contextual link injection
+
+The assistant is intentionally scoped to Emmanuel Samuel's professional profile and project history. Changing portfolio data or project naming means reviewing both the prompt context and the link-generation logic.
+</important>
+
+<important if="you are changing the contact form or its email delivery">
+
+- `src/components/ContactSection.tsx` — form UI, client validation, timeout handling, toasts
+- `src/lib/contact.ts` — shared Zod schema and allowed contact reasons
+- `src/app/api/contact/route.ts` — re-validates payload, rate-limits, builds sanitized email, sends via Resend
+</important>
+
+<important if="you are adding or modifying an API route">
+
+Follow the existing pattern: Zod validation, `NextResponse.json(...)`, explicit status codes. Rate limiting comes from `src/lib/rate-limit.ts`, shared by both routes.
+</important>
+
+<important if="you are changing SEO, metadata, sitemap, or structured data">
+
+SEO is centralized, not scattered across sections. `src/lib/seo/site.ts` defines canonical metadata, keywords, geo info, and identity; `src/lib/seo/jsonld.ts` builds the Website/WebPage/Person/project schema graph. `layout.tsx`, `sitemap.ts`, and `robots.ts` consume that layer.
+</important>
+
+<important if="you are adding or editing a homepage section, or navigation between sections">
+
+`page.tsx` is intentionally compositional. Sections (`HeroSection`, `AboutSection`, `ExperienceSection`, `ProjectsSection`, `SkillsSection`, `AITwinSection`, `ContactSection`) are presentation components backed by portfolio data. `Navbar` scrolls to hash sections and tracks the active one. `SmoothScroll` installs Lenis globally and intercepts in-page hash navigation — use the existing scroll helpers rather than custom scrolling.
+</important>
+
+<important if="you are writing styles, animation, or a new UI component">
+
+- Design tokens and theme variables live in `src/app/globals.css`
+- Extend the primitives in `src/components/ui/` before creating new base components
+- Motion and reduced-motion support are already wired into key components — preserve that behavior when editing animated UI
+</important>
+
+<important if="you are creating a component or deciding on server vs client rendering">
+
+Default to server components. Add `"use client"` only when hooks, browser APIs, animation, or event-driven UI require it.
+</important>
+
+<important if="you are adding or modifying imports">
+
+Use `@/*` imports — `tsconfig.json` maps `@/*` to `src/*`.
+</important>
+
+<important if="you are working with environment variables or deployment config">
+
+`RESEND_API_KEY`, `CONTACT_EMAIL_FROM`, `CONTACT_EMAIL_TO`, `AI_MODEL`, `ANTHROPIC_API_KEY`, `LLM_BASE_URL`
+</important>
