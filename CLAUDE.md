@@ -32,22 +32,6 @@ No test runner is configured — there is no `test` script and no Jest/Vitest/Pl
 Use `npm`, not another package manager.
 </important>
 
-<important if="you are exploring this codebase, tracing relationships, or reviewing changes">
-
-This project has a knowledge graph. Use the `code-review-graph` MCP tools **before** Grep/Glob/Read — the graph is cheaper and gives structural context (callers, dependents, coverage) that file scanning cannot. It auto-updates on file changes via hooks. Fall back to Grep/Glob/Read only when the graph doesn't cover what you need.
-
-| Tool | Use when |
-|---|---|
-| `semantic_search_nodes` | Finding functions/classes by name or keyword |
-| `query_graph` | Tracing callers_of / callees_of / imports_of / tests_for |
-| `get_architecture_overview`, `list_communities` | Understanding high-level structure |
-| `detect_changes` | Reviewing changes — gives risk-scored analysis |
-| `get_review_context` | Need source snippets for review, token-efficiently |
-| `get_impact_radius` | Understanding blast radius of a change |
-| `get_affected_flows` | Finding which execution paths are impacted |
-| `refactor_tool` | Planning renames, finding dead code |
-</important>
-
 <important if="you are updating resume links, social links, project entries, or any career fact">
 
 `src/data/portfolio.ts` is the source of truth. Homepage sections, contact links, AI Twin context, and SEO metadata all derive from it — after editing, verify the dependent SEO and chat behavior.
