@@ -1,6 +1,6 @@
 ---
 name: interview-story-bank
-description: Build or refresh Nikunj Khitha's interview STAR story bank from portfolio and resume facts for backend, GenAI, platform, ownership, debugging, leadership, conflict, and failure questions.
+description: Build or refresh Emmanuel Mayowa Samuel's interview STAR story bank from portfolio and resume facts for backend, GenAI, platform, ownership, debugging, leadership, conflict, and failure questions.
 ---
 
 # Interview Story Bank
@@ -18,7 +18,7 @@ Add `with subagents` for the full optimized flow.
 ## Inputs
 
 - Portfolio repo, default: current repository
-- Resume path, default: `Nikunj_Khitha_ATS_Resume_2026.tex`
+- Resume path, default: `Emmanuel_Samuel_Resume.docx`
 - Optional target company/JD
 
 ## Lightweight Flow

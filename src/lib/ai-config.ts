@@ -1,6 +1,7 @@
 import { PORTFOLIO_CONTEXT, PORTFOLIO_LINK_GUIDE } from "@/lib/ai-twin";
+import { getDefaultModelForProvider, getLLMProvider } from "@/lib/llm-provider";
 
-export const AI_MODEL = process.env.AI_MODEL || "claude-sonnet-5";
+export const AI_MODEL = process.env.AI_MODEL || getDefaultModelForProvider(getLLMProvider());
 
 export const SYSTEM_PROMPT = `
 You are an AI assistant for Emmanuel Samuel's portfolio website. Your role is to provide helpful, accurate information about Emmanuel's professional background, skills, experience, and projects.

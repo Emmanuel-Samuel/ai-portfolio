@@ -1,9 +1,9 @@
 "use client";
-import Image from "next/image";
 import { personalInfo } from "@/data/portfolio";
-import logo from "@/assets/logo.png";
+import BrandLogo from "./BrandLogo";
 import { Mail, Linkedin, Github } from "lucide-react";
 import { SpotlightCard } from "@/components/ui/spotlight-card";
+import Link from "next/link";
 
 const NAV_LINKS = [
   { label: "About", href: "#about" },
@@ -12,6 +12,12 @@ const NAV_LINKS = [
   { label: "Skills", href: "#skills" },
   { label: "AI Twin", href: "#ai-twin" },
   { label: "Contact", href: "#contact" },
+];
+
+// Real routes, rendered with next/link rather than in-page anchors.
+const ROUTE_LINKS = [
+  { label: "Blog", href: "/blog" },
+  { label: "Terminal", href: "/terminal" },
 ];
 
 const SOCIAL_LINKS = [
@@ -31,7 +37,7 @@ const Footer = () => (
             <a href="#hero" className="flex items-center gap-3 group shrink-0">
               <div className="relative">
                 <div className="absolute inset-0 bg-primary/20 blur-md rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                <Image src={logo} alt="" aria-hidden="true" className="w-8 h-8 opacity-80 group-hover:opacity-100 relative z-10 transition-opacity pointer-events-none" draggable={false} />
+                <BrandLogo className="w-8 h-8 opacity-80 group-hover:opacity-100 relative z-10 transition-opacity pointer-events-none" />
               </div>
               <span className="text-base font-bold text-muted-foreground group-hover:text-foreground transition-colors tracking-tight">
                 Emmanuel Samuel
@@ -47,6 +53,15 @@ const Footer = () => (
                 >
                   {l.label}
                 </a>
+              ))}
+              {ROUTE_LINKS.map((l) => (
+                <Link
+                  key={l.label}
+                  href={l.href}
+                  className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+                >
+                  {l.label}
+                </Link>
               ))}
             </nav>
           </div>

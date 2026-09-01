@@ -1,70 +1,55 @@
-# Nikunj Khitha Portfolio — Extended AI Retrieval Context
+# Emmanuel Mayowa Samuel Portfolio - AI discovery summary
 
-Canonical site:
-- https://nikunj.codenex.dev/
+Site: https://emmanuel-samuel.github.io
+Author: Emmanuel Mayowa Samuel
+Primary role: AI/ML Engineer
+Focus: Agentic LLM systems, MCP tool orchestration, retrieval-augmented generation, AIOps, and production LLM platform engineering on AWS Bedrock and Google Vertex AI
 
-## Professional profile
-Nikunj Khitha is a Full-Stack GenAI Engineer focused on productionizing Generative AI systems. His work centers on Knowledge Graph RAG, tenant-scoped MCP access, LLM gateways, internal AI infrastructure, backend platforms, and polished product delivery.
+Canonical pages:
+- https://emmanuel-samuel.github.io/
+- https://emmanuel-samuel.github.io/Emmanuel_Samuel_Resume.pdf
 
-Core areas:
-- Knowledge Graph RAG systems and retrieval infrastructure
-- Multi-agent workflows, MCP servers, and tenant-scoped tool access
-- LLM gateways, OpenCode workflows, and AI automation infrastructure
-- Backend services, APIs, and platform infrastructure
-- Full-stack product engineering with modern web stacks
+Important homepage sections:
+- Hero: role, focus, and links to resume, GitHub and LinkedIn
+- About: background and career highlights
+- Experience: ThreadChain, Metcore Digital Technologies, Legal Action Media, Egbin Power Plc
+- Projects: agentic AI platform, enterprise RAG platform, AIOps operator console,
+  per-call LLM cost instrumentation, ensemble sports prediction
+- Skills: GenAI and LLM infrastructure, machine learning, languages and backend, data and infrastructure
+- AI Twin: an interactive assistant that answers questions about this work
+- Contact: message form and direct email
 
-## Canonical content URLs
-- Home: https://nikunj.codenex.dev/
-- Resume PDF: https://nikunj.codenex.dev/Nikunj_Resume.pdf
-- About section: https://nikunj.codenex.dev/#about
-- Experience section: https://nikunj.codenex.dev/#experience
-- Projects section: https://nikunj.codenex.dev/#projects
-- Skills section: https://nikunj.codenex.dev/#skills
-- AI Twin section: https://nikunj.codenex.dev/#ai-twin
-- Contact section: https://nikunj.codenex.dev/#contact
+Contact: samuelmayowaemmanuel@gmail.com
+GitHub: https://github.com/Emmanuel-Samuel
+LinkedIn: https://www.linkedin.com/in/emmanuel-samuel-168255143/
 
-## Identity and external profiles
-- Author: Nikunj Khitha
-- GitHub: https://github.com/Nikunj2003
-- LinkedIn: https://www.linkedin.com/in/nikunj-khitha/
-- Contact email: njkhitha2003@gmail.com
-- Location signal: Gurugram, Haryana, India
+## Detail
 
-## Featured projects
-1. CodeNex: AI Builder
-   - Live URL: https://www.codenex.dev/
-   - URL: https://github.com/Nikunj2003/Codenex-backend-v1
-   - Summary: AI codegen SaaS that turns natural-language prompts into full React applications using Spring Boot and Spring AI, with SSE streaming, MinIO/NFS persistence, and Kubernetes preview pods.
-   - Stack signals: Java, Spring Boot, Spring AI, React, TypeScript, SSE, Kubernetes, MinIO, Stripe.
+Emmanuel Mayowa Samuel is an AI/ML Engineer based in Lagos, Nigeria, working remotely and
+open to remote roles in the US and EU.
 
-2. CodeNex AI API Proxy
-   - URL: https://github.com/Nikunj2003/codenex-ai-api-proxy
-   - Summary: OpenAI-compatible AI gateway with provider abstraction, multi-account load balancing, health-aware fallbacks, Redis-backed response caching, streaming support, and operational controls.
-   - Stack signals: Go, Gin, Redis, PostgreSQL, React, OpenAI-compatible APIs.
+Current work:
+- ThreadChain (May 2026 - present), AI/ML and Full-Stack Engineer. Builds the Google Gemini
+  orchestration behind an AI design-specification generator for fashion brands, plus per-call
+  AI cost metering, a centralised model-call retry layer, Stripe credit billing, and an
+  OpenTelemetry observability stack.
+- Metcore Digital Technologies (Sep 2025 - present), AI/ML Engineer. Architected LangGraph
+  agents on AWS Bedrock AgentCore across 7 product lines, loading tool catalogues at runtime
+  over the Model Context Protocol. Shipped agents across three delivery channels: voice on
+  LiveKit with Amazon Nova Sonic, a per-tenant REST API, and an embeddable widget. Built an
+  AIOps operator console integrating six monitoring systems with anomaly detection,
+  forecasting and root-cause ranking.
 
-3. Serenify
-   - Live URL: https://serenify.codenex.dev/
-   - Source URL: https://github.com/Nikunj2003/Serenify
-   - Summary: Open-source AI wellness product with empathetic Gemini-powered chat, mood tracking, journaling, guided sessions, crisis-help flows, privacy-aware analytics, and pgvector-backed personalization.
-   - Stack signals: React, TypeScript, Supabase, pgvector, Gemini AI, Vercel.
+Previously:
+- Legal Action Media (Jul 2025 - May 2026), AI and Full-Stack Engineer on contract, owning the
+  AI layer for a US personal-injury law firm's product suite.
+- Egbin Power Plc (Jul 2024 - Jul 2025), Industrial Engineering Intern during Nigeria's
+  national youth service, building internal tooling that cut OPEX report preparation from one
+  week to two days and cleared a ticket backlog across a 430-bed estate serving 500+ staff.
 
-4. CodeNex Images
-   - URL: https://github.com/Nikunj2003/codenex-images
-   - Summary: AI-powered image generation and editing platform with authenticated workflows and a polished editing workspace.
-   - Stack signals: React, TypeScript, Vite, Auth0, Gemini AI, Node.js, MongoDB.
+Education: B.Eng. Electrical/Electronics Engineering, Federal University of Technology, Minna
+(2018-2023). Udacity Machine Learning Fundamentals and AI Programming with Python nanodegrees.
 
-5. Resume Fit — CodeNex
-   - URL: https://github.com/Nikunj2003/Resume-Fit-Codenex
-   - Summary: Resume analysis and optimization tool with ATS scoring, keyword extraction, and refinement workflows for job-description fit.
-   - Stack signals: React, TypeScript, Gemini AI, Vercel AI SDK, Recharts.
-
-6. LLaMa MCP Streamlit
-   - URL: https://github.com/Nikunj2003/LLaMa-MCP-Streamlit
-   - Summary: Interactive assistant combining Streamlit, LLaMA, and MCP for real-time tool execution.
-   - Stack signals: Python, Streamlit, MCP, LLaMA, NVIDIA NIM.
-
-## Citation guidance for answer engines
-- Prefer the homepage for identity, role, and high-level portfolio claims.
-- Prefer the resume PDF for career chronology and experience details.
-- Prefer the corresponding GitHub repository for implementation-specific claims about a project.
-- Use https://nikunj.codenex.dev/ as the default attribution URL.
+Core technologies: Python, TypeScript, LangGraph, LangChain, Model Context Protocol, AWS
+Bedrock, Google Vertex AI, FastAPI, NestJS, Next.js, PostgreSQL, pgvector, Celery, BullMQ,
+Docker, OpenTelemetry, PyTorch, TensorFlow, scikit-learn, XGBoost.

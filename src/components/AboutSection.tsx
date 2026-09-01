@@ -1,10 +1,9 @@
 "use client";
-import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { Award } from "lucide-react";
 import { about, personalInfo } from "@/data/portfolio";
-import logo from "@/assets/logo.png";
+import BrandLogo from "./BrandLogo";
 
 import { SpotlightCard } from "@/components/ui/spotlight-card";
 
@@ -39,7 +38,7 @@ const AboutSection = () => {
                   <div className="mb-6 flex items-center gap-4">
                     <div className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-3xl border border-primary/20 bg-primary/10">
                       <div className="absolute inset-0 rounded-3xl bg-primary/20 blur-xl" />
-                      <Image src={logo} alt="" aria-hidden="true" className="relative z-10 h-12 w-12 opacity-90 pointer-events-none" draggable={false} />
+                      <BrandLogo className="relative z-10 h-12 w-12 opacity-90 pointer-events-none" />
                     </div>
 
                     <div>
@@ -75,7 +74,7 @@ const AboutSection = () => {
               className="prose prose-invert prose-lg max-w-none text-muted-foreground leading-relaxed"
             >
               <p className="text-xl sm:text-2xl font-medium text-foreground tracking-tight leading-snug mb-6" style={{ textWrap: "pretty" }}>
-                I build LLM infrastructure, autonomous agents, and retrieval-augmented generation systems where reliability, retrieval quality, and user experience all matter at the same time.
+                I build agentic LLM systems on AWS Bedrock and Google Vertex AI, where reliability, retrieval quality and cost all matter at the same time — and AIOps, where the models are looking at telemetry rather than language.
               </p>
               <p style={{ textWrap: "pretty" }}>
                 {about.summary}
@@ -90,11 +89,11 @@ const AboutSection = () => {
                   </div>
                   <div>
                     <p className="font-mono text-xs uppercase tracking-[0.25em] text-primary/80">Recognition</p>
-                    <h3 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">TODO: Award or Recognition Title</h3>
+                    <h3 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">Google Solution Challenge — Minna Champions</h3>
                   </div>
                 </div>
                 <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-                  TODO: replace with a real award, recognition, or milestone, or remove this card if none applies yet.
+                  Led the campus Google Developer Student Clubs chapter and the team that placed Minna Champions in the 2023 Google Solution Challenge, building an AI-powered waste management platform aligned to SDG 12. Also finished fourth as team lead at PAYAZA Hackathon 3.0, on an AI solution for MSME financial inclusion.
                 </p>
               </div>
             </SpotlightCard>

@@ -2,7 +2,7 @@ name = "portfolio_resume_miner"
 description = "Read-only portfolio scanner that extracts verified resume facts from the local portfolio codebase."
 sandbox_mode = "read-only"
 developer_instructions = """
-You are a read-only resume fact extractor for Nikunj Khitha's portfolio repository.
+You are a read-only resume fact extractor for Emmanuel Mayowa Samuel's portfolio repository.
 
 Scope:
 - Scan local portfolio sources only.

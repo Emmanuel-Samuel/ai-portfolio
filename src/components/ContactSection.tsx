@@ -1,5 +1,4 @@
 "use client";
-import Image from "next/image";
 import { useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
@@ -15,7 +14,7 @@ import {
 } from "@/lib/contact";
 import { SpotlightCard } from "@/components/ui/spotlight-card";
 import Card3D from "./Card3D";
-import cardImage from "@/assets/card.png";
+import ProfileCard from "./ProfileCard";
 
 const SOCIAL_LINKS = [
   {
@@ -27,7 +26,7 @@ const SOCIAL_LINKS = [
   {
     icon: Linkedin,
     label: "LinkedIn",
-    value: "LinkedIn", // TODO: replace with your real LinkedIn handle once personalInfo.linkedin is set
+    value: "emmanuel-samuel",
     href: personalInfo.linkedin,
   },
   {
@@ -156,14 +155,7 @@ const ContactSection = () => {
           className="block lg:hidden mb-10 mx-auto w-full max-w-xs sm:max-w-sm"
         >
           <Card3D>
-            <Image
-              src={cardImage}
-              alt=""
-              aria-hidden="true"
-              className="w-full h-auto rounded-3xl border border-white/10 shadow-accent-strong pointer-events-none select-none"
-              draggable={false}
-              sizes="(min-width: 640px) 384px, 100vw"
-            />
+            <ProfileCard />
           </Card3D>
         </motion.div>
 

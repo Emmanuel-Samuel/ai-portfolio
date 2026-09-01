@@ -1,6 +1,6 @@
 # Codex Job Hunt Toolkit
 
-This `.codex` folder contains project-scoped Codex setup for Nikunj Khitha's resume and job-search workflows.
+This `.codex` folder contains project-scoped Codex setup for Emmanuel Mayowa Samuel's resume and job-search workflows.
 
 ## What Is Here
 

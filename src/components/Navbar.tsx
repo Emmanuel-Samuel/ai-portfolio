@@ -1,9 +1,9 @@
 "use client";
-import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Menu, X, Download } from "lucide-react";
+import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import logo from "@/assets/logo.png";
+import BrandLogo from "./BrandLogo";
 import { personalInfo } from "@/data/portfolio";
 import { ThemeToggle } from "./ThemeToggle";
 import { scrollToHash } from "@/lib/scroll";
@@ -15,6 +15,12 @@ const navLinks = [
   { href: "#skills", label: "Skills" },
   { href: "#ai-twin", label: "AI Twin" },
   { href: "#contact", label: "Contact" },
+];
+
+// Real routes, not in-page anchors - these bypass the scroll handler.
+const routeLinks = [
+  { href: "/blog", label: "Blog" },
+  { href: "/terminal", label: "Terminal" },
 ];
 
 const Navbar = () => {
@@ -159,7 +165,7 @@ const Navbar = () => {
           }`}
         >
           <a href="#hero" aria-label="Go to hero section" className="flex items-center gap-2 group">
-            <Image src={logo} alt="" aria-hidden="true" className="w-10 h-10 sm:w-12 sm:h-12 transition-transform duration-300 group-hover:scale-110 pointer-events-none" draggable={false} />
+            <BrandLogo className="w-10 h-10 sm:w-12 sm:h-12 transition-transform duration-300 group-hover:scale-110 pointer-events-none" />
             <span className="font-bold text-lg tracking-wide hidden sm:block">Emmanuel Samuel</span>
           </a>
 
@@ -178,6 +184,16 @@ const Navbar = () => {
               >
                 {link.label}
               </a>
+            ))}
+            <div className="w-px h-4 bg-white/10 mx-2" />
+            {routeLinks.map(({ href, label }) => (
+              <Link
+                key={href}
+                href={href}
+                className="px-3 py-2 text-sm font-medium rounded-full text-muted-foreground hover:text-foreground hover:bg-white/10 transition-all duration-200"
+              >
+                {label}
+              </Link>
             ))}
             <div className="w-px h-4 bg-white/10 mx-2" />
             <ThemeToggle />
@@ -244,6 +260,16 @@ const Navbar = () => {
                 >
                   {link.label}
                 </a>
+              ))}
+              {routeLinks.map(({ href, label }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  onClick={() => closeMenu(false)}
+                  className="block px-4 py-3 text-sm rounded-lg font-medium w-full text-muted-foreground hover:text-foreground hover:bg-white/5 transition-colors"
+                >
+                  {label}
+                </Link>
               ))}
               <div className="flex items-center justify-between mt-2 pt-4 border-t border-white/5">
                 <ThemeToggle />

@@ -1,15 +1,15 @@
 {
-  "name": "my-next-js-portfolio-v2",
+  "name": "ai-portfolio",
   "version": "1.0.0",
-  "description": "A modern Next.js portfolio for Nikunj Khitha showcasing GenAI platform engineering work, projects, experience, and interactive AI-powered features.",
+  "description": "Personal portfolio for Emmanuel Mayowa Samuel - AI/ML Engineer. Agentic systems, RAG, and production LLM platform work, with an interactive AI assistant.",
   "type": "module",
-  "homepage": "https://nikunj.codenex.dev",
+  "homepage": "https://emmanuel-samuel.github.io",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Nikunj2003/My-Next-Js-Portfolio-v2.git"
+    "url": "git+https://github.com/Emmanuel-Samuel/ai-portfolio.git"
   },
   "bugs": {
-    "url": "https://github.com/Nikunj2003/My-Next-Js-Portfolio-v2/issues"
+    "url": "https://github.com/Emmanuel-Samuel/ai-portfolio/issues"
   },
   "scripts": {
     "dev": "next dev",
@@ -24,18 +24,20 @@
     "react",
     "typescript",
     "tailwindcss",
-    "genai",
+    "ai",
+    "llm",
+    "agents",
     "rag",
-    "graphrag",
-    "ai-platform",
-    "full-stack"
+    "mcp",
+    "aiops",
+    "machine-learning"
   ],
   "author": {
-    "name": "Nikunj Khitha",
-    "email": "njkhitha2003@gmail.com",
-    "url": "https://nikunj.codenex.dev"
+    "name": "Emmanuel Mayowa Samuel",
+    "email": "samuelmayowaemmanuel@gmail.com",
+    "url": "https://github.com/Emmanuel-Samuel"
   },
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-accordion": "^1.2.12",
@@ -73,10 +75,12 @@
     "date-fns": "^4.1.0",
     "embla-carousel-react": "^8.6.0",
     "framer-motion": "^12.38.0",
+    "gray-matter": "^4.0.3",
     "input-otp": "^1.4.2",
     "lenis": "^1.3.19",
     "lucide-react": "^0.577.0",
     "next": "^16.2.1",
+    "next-mdx-remote": "^6.0.0",
     "next-seo": "^7.2.0",
     "next-themes": "^0.4.6",
     "react": "^19.2.4",
@@ -87,9 +91,11 @@
     "react-markdown": "^10.1.0",
     "react-resizable-panels": "^4.7.4",
     "recharts": "^3.8.0",
+    "rehype-pretty-code": "^0.14.5",
     "remark-gfm": "^4.0.1",
     "resend": "^6.9.4",
     "sharp": "^0.34.5",
+    "shiki": "^4.4.3",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.5.0",
     "tailwindcss-animate": "^1.0.7",

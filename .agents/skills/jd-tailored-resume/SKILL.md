@@ -1,6 +1,6 @@
 ---
 name: jd-tailored-resume
-description: Rewrite Nikunj Khitha's ATS-friendly LaTeX resume for a specific job description using the latest portfolio facts, JD keywords, company research, and resume best practices. Use when the user provides or references a JD and asks for a tailored resume.
+description: Rewrite Emmanuel Mayowa Samuel's ATS-friendly LaTeX resume for a specific job description using the latest portfolio facts, JD keywords, company research, and resume best practices. Use when the user provides or references a JD and asks for a tailored resume.
 ---
 
 # JD-Tailored Resume
@@ -41,7 +41,7 @@ Add `with subagents` when the user wants the full optimized multi-agent flow. Co
 3. Build a targeting brief:
    - Target role title and seniority
    - Top 10 exact ATS keywords from the JD
-   - Supported keywords already present in Nikunj's portfolio
+   - Supported keywords already present in Emmanuel's portfolio
    - Missing keywords that must not be faked
    - Company-specific positioning angles
    - Resume sections that need edits

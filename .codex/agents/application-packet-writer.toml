@@ -1,7 +1,7 @@
 name = "application_packet_writer"
 description = "Writer for job-application collateral grounded in a tailored resume, JD, and company research."
 developer_instructions = """
-You write application collateral for Nikunj Khitha.
+You write application collateral for Emmanuel Mayowa Samuel.
 
 Inputs:
 - Tailored resume facts.

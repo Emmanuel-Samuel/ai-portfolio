@@ -102,7 +102,7 @@ Subagents:
 
 Output:
 
-- Updated base resume, default `Nikunj_Khitha_ATS_Resume_2026.tex`.
+- Updated base resume, default `Emmanuel_Samuel_Resume.docx`.
 - Validation notes.
 - Missing facts that would improve the resume.
 

@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🌐 Nikunj Khitha - Full-Stack GenAI Engineer Portfolio
+# 🌐 Emmanuel Mayowa Samuel - AI/ML Engineer Portfolio
 
 Production-grade portfolio for a full-stack GenAI engineer focused on GraphRAG, LightRAG, AI automation, AI gateways, backend systems, and product-grade applications built with TypeScript/Node.js, Go/Gin, Java/Spring, and Python/FastAPI.
 
@@ -69,8 +69,8 @@ Create a `.env.local` to securely store keys for the AI Chatbot and Resend-backe
 # -----------------------------
 # Contact / Resend
 RESEND_API_KEY=re_your_resend_api_key
-CONTACT_EMAIL_FROM="Nikunj Portfolio <contact@portfolio.codenex.dev>"
-CONTACT_EMAIL_TO=njkhitha2003@gmail.com,info.portfolio.nikunj@gmail.com
+CONTACT_EMAIL_FROM="Portfolio Contact <contact@yourdomain.com>"
+CONTACT_EMAIL_TO=samuelmayowaemmanuel@gmail.com
 
 # -----------------------------
 # LLM / AI Provider
@@ -83,7 +83,7 @@ AI_MODEL=openai/gpt-oss-20b
 
 `CONTACT_EMAIL_TO` supports a comma-separated list if you want contact form emails delivered to multiple inboxes.
 
-To send from a custom address like `contact@portfolio.codenex.dev`, verify that domain/subdomain inside Resend and add the SPF/DKIM DNS records Resend provides.
+To send from a custom address like `contact@yourdomain.com`, verify that domain/subdomain inside Resend and add the SPF/DKIM DNS records Resend provides.
 
 ---
 
@@ -148,3 +148,10 @@ See LICENSE for details.
 ---
 
 <div align="center">Made with passion & TypeScript ⚡</div>
+
+## Credits
+
+This site is built on [My-Next-Js-Portfolio-v2](https://github.com/Nikunj2003/My-Next-Js-Portfolio-v2)
+by [Nikunj Khitha](https://github.com/Nikunj2003), used under the MIT Licence. The original
+copyright notice is retained in [LICENSE](./LICENSE). Content, data and subsequent
+modifications are my own.

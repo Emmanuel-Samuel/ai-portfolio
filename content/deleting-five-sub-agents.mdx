@@ -1,0 +1,52 @@
+---
+title: "Why I deleted five sub-agents and shipped one"
+summary: "A supervisor agent kept mis-routing requests across five specialised sub-agents. The fix wasn't better prompting - it was deleting four of them."
+date: "2026-08-12"
+tags: ["agents", "aws-bedrock", "postmortem"]
+draft: false
+---
+
+A few months ago I shipped an agent system on AWS Bedrock AgentCore that looked, on paper, like the textbook way to do it: a supervisor agent that read the incoming request and delegated to one of five specialised sub-agents, each scoped to its own domain - billing, scheduling, search, reporting, and account admin. Clean separation of concerns. Each sub-agent had its own small toolset. It felt like good architecture.
+
+In production it fell over in a specific, embarrassing way: the supervisor kept picking the wrong sub-agent for anything even slightly ambiguous. A request that touched both scheduling and billing would get routed to whichever agent happened to match the first keyword, and then that agent would either fail outright or - worse - quietly answer with tools that weren't the right ones for the job. Users noticed before we did.
+
+## What I assumed the bug was
+
+My first guess was routing prompt quality. I rewrote the supervisor's system prompt three or four times, adding more explicit descriptions of what each sub-agent was "for," with examples of correct routing. It helped a little and then plateaued. The failure rate on ambiguous requests stayed stubbornly high - somewhere around one in six calls.
+
+My second guess was that the sub-agent descriptions themselves were bad, so I made them longer and more detailed. That made things slightly worse, if anything, because the supervisor's own context window was now mostly filled with descriptions of tools it didn't have direct access to.
+
+## The actual diagnosis
+
+The real issue was structural, not textual. Each sub-agent's tool catalogue lived inside that sub-agent. The supervisor never saw the full list of ~23 tools across the system - it only saw five short, hand-written summaries of what each sub-agent *roughly* did. So the routing decision was being made on a compressed, lossy description of the system's real capabilities, not on the capabilities themselves.
+
+Put simply: no single part of the system ever had the full picture. The supervisor was guessing based on a summary of a summary, and summaries lose exactly the detail you need for edge cases. Ambiguous requests are ambiguous *because* they sit between categories - and a router with only five coarse buckets to choose from has no way to reason its way out of that.
+
+> The multi-agent split wasn't reducing complexity, it was hiding it. Every sub-agent boundary was a place where information the supervisor needed simply didn't exist anymore.
+
+## The fix
+
+I collapsed the five sub-agents into one. The unified agent loads its full tool catalogue at runtime over MCP, sourced from vendored OpenAPI contracts for each internal service, rather than having tools hard-coded per sub-agent:
+
+```python
+# one agent, one runtime-loaded catalogue instead of five hard-coded ones
+tools = mcp_client.load_tools_from_openapi(
+    contracts=vendored_openapi_contracts,  # billing, scheduling, search, reporting, admin
+)
+
+agent = Agent(
+    model=model_id,
+    tools=tools,  # ~23 tools, all visible to the same reasoning pass
+    system_prompt=SYSTEM_PROMPT,
+)
+```
+
+There's no routing step anymore, because there's nothing left to route to. The model sees all ~23 tools in one context and picks whichever one (or combination) actually matches the request. The ambiguous-request failure mode - the one I'd spent weeks trying to prompt-engineer away - disappeared completely. Not "improved." Gone. Because the underlying cause, a partial view of the system, no longer existed.
+
+Latency actually improved too, since we'd cut out a full supervisor-to-sub-agent hop for the majority of requests that used to need it.
+
+## The lesson
+
+Multi-agent architectures are seductive because they map neatly onto how a human team would be organised: billing person, scheduling person, and so on. But an LLM isn't a team of people who need separate desks - it's a single reasoning process that works best when it can see everything relevant to the decision in front of it. Splitting a 23-tool catalogue into five 4-to-5-tool slices didn't reduce the model's cognitive load, it removed information it needed and replaced it with a guess.
+
+My rule now: reach for multiple agents when a single context window genuinely cannot hold the task - the tool count is too large to reason over, the domains require conflicting system prompts, or you need actual process isolation for safety or cost reasons. Don't reach for it by default because it looks like better software architecture. A supervisor-and-sub-agents pattern is solving an organisational problem. Most of the time, the problem you actually have is a model problem, and the fix is giving the model more of the picture, not less.

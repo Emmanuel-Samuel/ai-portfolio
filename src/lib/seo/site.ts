@@ -9,7 +9,7 @@ export const siteConfig = {
   resumeUrl: `${siteUrl}${personalInfo.resumeUrl}`,
   updatedAt: "2026-05-14T00:00:00.000Z",
   siteName: "Emmanuel Samuel Portfolio",
-  title: `${personalInfo.name} — Software & AI/ML Engineer`,
+  title: `${personalInfo.name} — AI/ML Engineer`,
   description: personalInfo.tagline,
   author: personalInfo.name,
   creator: personalInfo.name,
@@ -45,8 +45,8 @@ export const siteConfig = {
     "Full-Stack Development",
   ],
   geo: {
-    region: "NG-LA", // TODO: confirm location
-    placename: "Lagos, Nigeria", // TODO: confirm location
+    region: "NG-LA",
+    placename: "Lagos, Nigeria",
     latitude: 6.5244,
     longitude: 3.3792,
     position: "6.5244;3.3792",

@@ -1,6 +1,6 @@
 ---
 name: application-packet
-description: Create job-application collateral from Nikunj Khitha's tailored resume and a job description, including cover letter, recruiter email, LinkedIn note, referral ask, follow-up, and interview talking points. Use after a tailored resume exists or when asked for outreach material.
+description: Create job-application collateral from Emmanuel Mayowa Samuel's tailored resume and a job description, including cover letter, recruiter email, LinkedIn note, referral ask, follow-up, and interview talking points. Use after a tailored resume exists or when asked for outreach material.
 ---
 
 # Application Packet
@@ -17,7 +17,7 @@ Add `with subagents` when the user wants the full optimized flow.
 
 ## Inputs
 
-- Resume path, default: `Nikunj_Khitha_ATS_Resume_2026.tex`
+- Resume path, default: `Emmanuel_Samuel_Resume.docx`
 - Job description text, URL, or attachment
 - Optional company name and role title
 

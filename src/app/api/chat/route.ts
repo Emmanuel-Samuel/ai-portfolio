@@ -9,6 +9,7 @@ import {
 } from "@/lib/chat-contract";
 import { CHAT_MEMORY_WINDOW, appendContextualLinks, findMatchingProjects, normalizeText, trimConversationHistory } from "@/lib/ai-twin";
 import { checkRateLimit, getClientKey, getRateLimitHeaders } from "@/lib/rate-limit";
+import { buildProviderRequest, extractProviderTextContent, getLLMProvider, getProviderApiKey, type LLMProvider } from "@/lib/llm-provider";
 
 interface Message {
   content: string;
@@ -279,23 +280,11 @@ async function postChatCompletion(
   }
 }
 
-const ANTHROPIC_VERSION = "2023-06-01";
 const DEFAULT_MAX_TOKENS = 1024;
 const SUGGESTION_MAX_TOKENS = 300;
 
 function isChatConfigured() {
-  return Boolean(process.env.ANTHROPIC_API_KEY?.trim());
-}
-
-function getAnthropicTextContent(responseData: {
-  content?: Array<{ type: string; text?: string }>;
-}) {
-  return (
-    responseData.content
-      ?.filter((block) => block.type === "text" && typeof block.text === "string")
-      .map((block) => block.text)
-      .join("") || ""
-  );
+  return Boolean(getProviderApiKey(getLLMProvider()));
 }
 
 export async function GET() {
@@ -345,9 +334,10 @@ export async function POST(request: Request) {
 
     const { message, conversationHistory } = parsedBody.data;
 
-    const apiKey = process.env.ANTHROPIC_API_KEY?.trim();
+    const provider = getLLMProvider();
+    const apiKey = getProviderApiKey(provider);
     if (!apiKey) {
-      console.warn("Anthropic API key not configured");
+      console.warn(`${provider} API key not configured`);
       return createChatErrorResponse(
         503,
         "service_unavailable",
@@ -356,14 +346,6 @@ export async function POST(request: Request) {
         false
       );
     }
-
-    const invokeUrl = process.env.LLM_BASE_URL?.trim() || "https://api.anthropic.com/v1/messages";
-    const headers = {
-      "x-api-key": apiKey,
-      "anthropic-version": ANTHROPIC_VERSION,
-      "Accept": "application/json",
-      "Content-Type": "application/json"
-    };
 
     const recentMessages = trimConversationHistory(conversationHistory, CHAT_MEMORY_WINDOW);
 
@@ -379,20 +361,22 @@ export async function POST(request: Request) {
     messages.push({ role: "user", content: message });
 
     // 1. Generate primary AI response
+    const primaryRequest = buildProviderRequest(provider, apiKey, {
+      model: AI_MODEL,
+      system: SYSTEM_PROMPT,
+      messages,
+      maxTokens: DEFAULT_MAX_TOKENS,
+      topP: 0.7,
+      temperature: 0.7,
+    });
+
     let response: Response;
 
     try {
       response = await postChatCompletion(
-        invokeUrl,
-        headers,
-        {
-          model: AI_MODEL,
-          system: SYSTEM_PROMPT,
-          messages,
-          max_tokens: DEFAULT_MAX_TOKENS,
-          top_p: 0.7,
-          temperature: 0.7,
-        },
+        primaryRequest.url,
+        primaryRequest.headers,
+        primaryRequest.body,
         CHAT_PRIMARY_RESPONSE_TIMEOUT_MS
       );
     } catch (error) {
@@ -447,7 +431,7 @@ export async function POST(request: Request) {
     }
 
     const responseData = await response.json();
-    let aiResponse = getAnthropicTextContent(responseData);
+    let aiResponse = extractProviderTextContent(provider, responseData);
 
     if (!aiResponse) {
       aiResponse = "I apologize, but I'm having trouble responding right now. Please try asking your question again.";
@@ -464,8 +448,8 @@ export async function POST(request: Request) {
             message,
             aiResponse,
             recentMessages,
-            invokeUrl,
-            headers,
+            provider,
+            apiKey,
             Math.min(CHAT_SUGGESTION_TIMEOUT_MS, remainingBudgetMs - 250),
             priorUserTexts,
           )
@@ -491,8 +475,8 @@ async function generateAISuggestions(
   currentMessage: string,
   aiResponse: string,
   recentMessages: Message[],
-  invokeUrl: string,
-  headers: Record<string, string>,
+  provider: LLMProvider,
+  apiKey: string,
   timeoutMs: number,
   priorUserTexts: string[],
 ): Promise<string[]> {
@@ -539,17 +523,19 @@ Rules:
       },
     ];
 
+    const suggestionRequest = buildProviderRequest(provider, apiKey, {
+      model: AI_MODEL,
+      system: SUGGESTION_SYSTEM_PROMPT,
+      messages: suggestionMessages,
+      maxTokens: SUGGESTION_MAX_TOKENS,
+      temperature: 0.7,
+      topP: 0.9,
+    });
+
     const suggestionResp = await postChatCompletion(
-      invokeUrl,
-      headers,
-      {
-        model: AI_MODEL,
-        system: SUGGESTION_SYSTEM_PROMPT,
-        messages: suggestionMessages,
-        max_tokens: SUGGESTION_MAX_TOKENS,
-        temperature: 0.7,
-        top_p: 0.9,
-      },
+      suggestionRequest.url,
+      suggestionRequest.headers,
+      suggestionRequest.body,
       timeoutMs
     );
 
@@ -558,7 +544,7 @@ Rules:
     }
 
     const data = await suggestionResp.json();
-    let raw = getAnthropicTextContent(data).trim() || "[]";
+    let raw = extractProviderTextContent(provider, data).trim() || "[]";
     
     raw = raw.replace(/^```(?:json)?/i, "").replace(/```$/i, "").trim();
     

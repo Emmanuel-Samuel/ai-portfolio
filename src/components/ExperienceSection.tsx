@@ -312,7 +312,7 @@ const ExperienceSection = () => {
                     <span className="text-gradient">Experience</span>
                   </h2>
                   <p className="max-w-md leading-relaxed text-muted-foreground">
-                    TODO: replace with a short narrative connecting your work history — LLM infrastructure, agents, RAG systems, and the software engineering roles that led here.
+                    Trained as an electrical engineer, started writing software for a power plant, and ended up building agentic AI platforms. The thread through all of it is the same: understand the constraints of the place you are building for, then ship something people actually use.
                   </p>
 
                   <div className="hidden lg:block">

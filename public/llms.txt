@@ -1,35 +1,24 @@
-# Nikunj Khitha Portfolio — AI discovery summary
+# Emmanuel Mayowa Samuel Portfolio - AI discovery summary
 
-Site: https://nikunj.codenex.dev
-Author: Nikunj Khitha
-Primary role: Full-Stack GenAI Engineer
-Focus: Knowledge Graph RAG systems, tenant-scoped MCP access, LLM gateways, AI infrastructure, and production-grade full-stack products
+Site: https://emmanuel-samuel.github.io
+Author: Emmanuel Mayowa Samuel
+Primary role: AI/ML Engineer
+Focus: Agentic LLM systems, MCP tool orchestration, retrieval-augmented generation, AIOps, and production LLM platform engineering on AWS Bedrock and Google Vertex AI
 
 Canonical pages:
-- https://nikunj.codenex.dev/
-- https://nikunj.codenex.dev/Nikunj_Resume.pdf
+- https://emmanuel-samuel.github.io/
+- https://emmanuel-samuel.github.io/Emmanuel_Samuel_Resume.pdf
 
 Important homepage sections:
-- About: https://nikunj.codenex.dev/#about
-- Experience: https://nikunj.codenex.dev/#experience
-- Projects: https://nikunj.codenex.dev/#projects
-- Skills: https://nikunj.codenex.dev/#skills
-- AI Twin: https://nikunj.codenex.dev/#ai-twin
-- Contact: https://nikunj.codenex.dev/#contact
+- Hero: role, focus, and links to resume, GitHub and LinkedIn
+- About: background and career highlights
+- Experience: ThreadChain, Metcore Digital Technologies, Legal Action Media, Egbin Power Plc
+- Projects: agentic AI platform, enterprise RAG platform, AIOps operator console,
+  per-call LLM cost instrumentation, ensemble sports prediction
+- Skills: GenAI and LLM infrastructure, machine learning, languages and backend, data and infrastructure
+- AI Twin: an interactive assistant that answers questions about this work
+- Contact: message form and direct email
 
-Entity profiles:
-- GitHub: https://github.com/Nikunj2003
-- LinkedIn: https://www.linkedin.com/in/nikunj-khitha/
-
-Top project references:
-- CodeNex AI Builder live: https://www.codenex.dev/
-- CodeNex Backend v1: https://github.com/Nikunj2003/Codenex-backend-v1
-- CodeNex AI API Proxy: https://github.com/Nikunj2003/codenex-ai-api-proxy
-- Serenify live: https://serenify.codenex.dev/
-- Serenify source: https://github.com/Nikunj2003/Serenify
-- CodeNex Images: https://github.com/Nikunj2003/codenex-images
-- Resume Fit — CodeNex: https://github.com/Nikunj2003/Resume-Fit-Codenex
-- LLaMa MCP Streamlit: https://github.com/Nikunj2003/LLaMa-MCP-Streamlit
-
-Preferred citation URL:
-- https://nikunj.codenex.dev/
+Contact: samuelmayowaemmanuel@gmail.com
+GitHub: https://github.com/Emmanuel-Samuel
+LinkedIn: https://www.linkedin.com/in/emmanuel-samuel-168255143/

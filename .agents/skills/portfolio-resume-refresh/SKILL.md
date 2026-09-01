@@ -1,6 +1,6 @@
 ---
 name: portfolio-resume-refresh
-description: Refresh or create Nikunj Khitha's ATS-friendly LaTeX resume from the latest local portfolio data, existing resume files, and current resume best practices. Use when asked to update the resume from portfolio content or regenerate the base one-page resume.
+description: Refresh or create Emmanuel Mayowa Samuel's ATS-friendly LaTeX resume from the latest local portfolio data, existing resume files, and current resume best practices. Use when asked to update the resume from portfolio content or regenerate the base one-page resume.
 ---
 
 # Portfolio Resume Refresh
@@ -18,7 +18,7 @@ Add `with subagents` when the user wants the full optimized multi-agent flow. Co
 ## Inputs
 
 - Default portfolio root: current repository.
-- Default output: `Nikunj_Khitha_ATS_Resume_2026.tex`.
+- Default output: `Emmanuel_Samuel_Resume.docx`.
 - Source of truth: local portfolio facts first; current resume best practices second.
 
 ## Workflow

@@ -1,6 +1,6 @@
 ---
 name: portfolio-fact-gap-audit
-description: Audit Nikunj Khitha's portfolio and resume for missing facts that weaken job applications, such as missing metrics, dates, links, certifications, project evidence, or stale/contradictory claims.
+description: Audit Emmanuel Mayowa Samuel's portfolio and resume for missing facts that weaken job applications, such as missing metrics, dates, links, certifications, project evidence, or stale/contradictory claims.
 ---
 
 # Portfolio Fact Gap Audit

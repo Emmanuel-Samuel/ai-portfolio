@@ -1,12 +1,11 @@
 "use client";
-import Image from "next/image";
 import { useEffect, useState, useRef } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { ArrowDown, MessageCircle, Download } from "lucide-react";
 import { personalInfo, stats } from "@/data/portfolio";
 import Card3D from "./Card3D";
-import cardImage from "@/assets/card.png";
+import ProfileCard from "./ProfileCard";
 
 const AnimatedCounter = ({ value, suffix, start }: { value: number; suffix: string; start: boolean }) => {
   const [count, setCount] = useState(0);
@@ -174,15 +173,7 @@ const HeroSection = () => {
              <div className="absolute inset-0 bg-[radial-gradient(circle,hsl(var(--primary)/0.15)_0%,transparent_70%)] rounded-full scale-150" />
              <div className="relative z-10 w-full max-w-[500px] xl:max-w-[600px] lg:scale-110 xl:scale-125 lg:origin-right lg:translate-x-4 xl:translate-x-12">
               <Card3D className="w-full">
-                  <Image
-                     src={cardImage}
-                     alt=""
-                     aria-hidden="true"
-                     className="w-full h-auto rounded-3xl border border-white/10 shadow-accent-strong pointer-events-none select-none"
-                    draggable={false}
-                    priority
-                    sizes="(min-width: 1280px) 600px, (min-width: 1024px) 500px, 100vw"
-                  />
+                <ProfileCard />
               </Card3D>
              </div>
           </motion.div>

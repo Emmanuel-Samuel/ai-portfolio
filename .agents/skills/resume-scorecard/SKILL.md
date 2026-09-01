@@ -1,6 +1,6 @@
 ---
 name: resume-scorecard
-description: Score Nikunj Khitha's resume against a job description, ATS parsing, keyword coverage, evidence strength, recruiter readability, and truthfulness. Use when asked to evaluate, score, compare, or audit the resume.
+description: Score Emmanuel Mayowa Samuel's resume against a job description, ATS parsing, keyword coverage, evidence strength, recruiter readability, and truthfulness. Use when asked to evaluate, score, compare, or audit the resume.
 ---
 
 # Resume Scorecard
@@ -17,7 +17,7 @@ Add `with subagents` when the user wants JD analysis, company research, and resu
 
 ## Inputs
 
-- Resume path, default: `Nikunj_Khitha_ATS_Resume_2026.tex`
+- Resume path, default: `Emmanuel_Samuel_Resume.docx`
 - Optional job description text, URL, or attachment
 - Optional target company and role
 
