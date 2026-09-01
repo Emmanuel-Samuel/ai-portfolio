@@ -4,7 +4,7 @@ import { getPosts, formatDate } from "@/lib/blog";
 import { siteConfig, ogLocale } from "@/lib/seo/site";
 
 export const metadata: Metadata = {
-  title: `Writing — ${siteConfig.author}`,
+  title: `Blog — ${siteConfig.author}`,
   description: "Notes on building LLM infrastructure, autonomous agents, and production AI systems.",
   alternates: {
     canonical: `${siteConfig.siteUrl}/blog`,
@@ -13,13 +13,13 @@ export const metadata: Metadata = {
     type: "website",
     locale: ogLocale,
     url: `${siteConfig.siteUrl}/blog`,
-    title: `Writing — ${siteConfig.author}`,
+    title: `Blog — ${siteConfig.author}`,
     description: "Notes on building LLM infrastructure, autonomous agents, and production AI systems.",
     siteName: siteConfig.siteName,
   },
   twitter: {
     card: "summary_large_image",
-    title: `Writing — ${siteConfig.author}`,
+    title: `Blog — ${siteConfig.author}`,
     description: "Notes on building LLM infrastructure, autonomous agents, and production AI systems.",
   },
 };
@@ -35,7 +35,7 @@ export default function BlogPage() {
             Blog
           </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
-            <span className="text-gradient">Writing</span>
+            <span className="text-gradient">Blog</span>
           </h1>
           <p className="text-muted-foreground leading-relaxed max-w-xl text-lg">
             Notes on building LLM infrastructure, autonomous agents, and production AI systems.
