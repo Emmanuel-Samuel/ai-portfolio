@@ -3,7 +3,7 @@ title: "What an LLM call actually costs"
 summary: "Most LLM cost tracking multiplies total tokens by a single rate, and that number is confidently wrong at exactly the point where the spend is largest."
 date: "2026-09-01"
 tags: ["llm", "cost", "observability", "production"]
-draft: true
+draft: false
 ---
 
 On a product I work on, users type a short description and get back a generated image and a structured document - built on Google Gemini via Vertex AI. Early on, we tracked cost the way most teams do: log the total token count per call, multiply by a rate we'd written down somewhere, sum it up at the end of the month. It looked fine on a dashboard. It was wrong.
