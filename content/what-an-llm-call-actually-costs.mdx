@@ -1,0 +1,74 @@
+---
+title: "What an LLM call actually costs"
+summary: "Most LLM cost tracking multiplies total tokens by a single rate, and that number is confidently wrong at exactly the point where the spend is largest."
+date: "2026-09-01"
+tags: ["llm", "cost", "observability", "production"]
+draft: true
+---
+
+On a product I work on, users type a short description and get back a generated image and a structured document - built on Google Gemini via Vertex AI. Early on, we tracked cost the way most teams do: log the total token count per call, multiply by a rate we'd written down somewhere, sum it up at the end of the month. It looked fine on a dashboard. It was wrong.
+
+The problem is that "tokens" isn't one thing. A modern model call can involve prompt tokens, output tokens, internal "thinking" or reasoning tokens that the model spends before it produces visible output, and - in our case - image output tokens. Each of those is billed separately, and not at similar rates. Image output in particular can be priced an order of magnitude above text. If you blend all of that into a single per-token rate, the number you get isn't approximately right, it's wrong in a specific direction: it under-counts the calls that generate images and over-counts the calls that don't, and it does this silently, every single time.
+
+## Why the blended rate fails exactly when it matters
+
+The failure mode isn't random noise, it's systematic. A blended rate assumes every token in a call is interchangeable. It isn't. A call that produces a paragraph of text and a call that produces an image can report an identical "total token count" and cost wildly different amounts. If your instrumentation only records the total, you've thrown away the one piece of information that would let you tell those two calls apart.
+
+> A single blended per-token rate produces numbers that are confidently wrong - and the error is largest exactly where the spend is largest.
+
+This matters because the whole point of cost tracking is to catch the expensive thing before it shows up on an invoice. If your tracking can't distinguish "this call generated an image" from "this call generated a sentence," it can't do that job, no matter how many decimal places it reports to.
+
+There's a second, quieter version of the same mistake: treating "thinking" tokens as free because they never reach the user. Reasoning models can spend a meaningful number of tokens working through a problem before they emit the answer you actually see, and those tokens are usually billed - sometimes at the same rate as output, sometimes at their own rate. If your instrumentation only counts what's rendered to the screen, you're measuring the visible cost of a call, not the actual cost of it. Those two numbers can diverge by a lot, and the gap is invisible until you go looking for it specifically.
+
+## What we built instead
+
+The fix was to stop tracking cost as a single number and start tracking it as a small, structured record, per call. Every model call goes through an instrumentation decorator that captures usage broken down by token class, looks up the right rate for that class and that model, and writes an audit row to PostgreSQL before the call is considered complete.
+
+```python
+# illustrative rate table - not real vendor pricing.
+# rates are per-1k tokens, per model, per token class.
+RATE_TABLE = {
+    "gemini-model-a": {
+        "prompt": 0.00015,
+        "output": 0.0006,
+        "thinking": 0.0006,
+        "image_output": 0.0400,  # priced well above text classes
+    },
+}
+
+def track_llm_cost(model_name: str):
+    def decorator(fn):
+        @functools.wraps(fn)
+        async def wrapper(*args, **kwargs):
+            response = await fn(*args, **kwargs)
+            usage = extract_usage(response)  # per-class token counts
+
+            rates = RATE_TABLE[model_name]
+            cost = sum(
+                (usage[cls] / 1000) * rate
+                for cls, rate in rates.items()
+                if cls in usage
+            )
+
+            record_call_cost(
+                model=model_name,
+                usage=usage,
+                cost=cost,
+            )
+            emit_otel_counters(model_name, usage, cost)
+            return response
+        return wrapper
+    return decorator
+```
+
+The rate table is hand-maintained on purpose. Vendor pricing changes, it differs by modality, and I'd rather have a rate table someone has to consciously update than a formula that quietly drifts out of date. Every call also emits OpenTelemetry counters into the metrics pipeline, so the same data feeds both the real-time dashboards and the per-call audit trail in the database. Billing-summary endpoints then aggregate the audit rows by model, by token class, by whatever slice you actually need to answer a question - which is the part a blended monthly total can never give you back once it's been collapsed into one number.
+
+The per-call audit row matters as much as the aggregate. A dashboard tells you spend went up this week. A row per call tells you which call, which model, and which token class did it - which is the difference between noticing a problem and being able to fix it. If one particular request type starts generating images far more often than expected, that's visible directly in the audit data, not something you have to reconstruct by guessing from a total that's already blended it away with everything else.
+
+One thing worth a mention alongside this: retries cost money too. This instrumentation sits next to a centralised retry layer using equal-jitter exponential backoff for 503s, 429s, quota-exhaustion errors and network resets. Naive retry logic - fixed delays, no jitter, no ceiling - can silently multiply your spend on the calls that are already failing for a reason. Getting the cost visibility right and getting the retry behaviour right turned out to be the same piece of work, not two separate ones.
+
+## The takeaway
+
+None of this is exotic engineering. It's a decorator, a rate table, a database table, and a couple of counters. The reason it's worth doing is that the alternative - a single blended rate, discovered to be wrong when the invoice arrives - isn't actually cheaper, it's just deferred and less accurate.
+
+If you can't attribute spend per call, per model, and per token class, you don't know what your AI feature costs. You know what it cost on average, for a mix of calls you can no longer tell apart.

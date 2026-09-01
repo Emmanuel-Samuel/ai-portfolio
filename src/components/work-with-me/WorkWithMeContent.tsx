@@ -99,7 +99,7 @@ const WorkWithMeContent = () => {
               href="#booking"
               className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-5 py-2.5 text-sm font-semibold text-primary transition-colors hover:bg-primary/15"
             >
-              Book a discovery call
+              Schedule a free consultation
               <ArrowDown className="h-4 w-4" />
             </a>
           </motion.div>
@@ -145,7 +145,7 @@ const WorkWithMeContent = () => {
       <section id="booking" className="pb-24 scroll-mt-24">
         <div className="container-narrow max-w-3xl">
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mb-6">
-            Book a discovery call
+            Schedule a free consultation
           </h2>
           <BookingEmbed />
         </div>
