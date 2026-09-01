@@ -15,6 +15,7 @@ import {
 import { SpotlightCard } from "@/components/ui/spotlight-card";
 import Card3D from "./Card3D";
 import ProfileCard from "./ProfileCard";
+import BookingEmbed from "./BookingEmbed";
 
 const SOCIAL_LINKS = [
   {
@@ -159,59 +160,19 @@ const ContactSection = () => {
           </Card3D>
         </motion.div>
 
-        {/* Two equal panels with Spotlight */}
+        {/* Two equal panels with Spotlight — booking first so it stacks above the form on mobile */}
         <div className="grid lg:grid-cols-2 gap-6 items-stretch max-w-5xl 2xl:max-w-7xl mx-auto">
 
-          {/* Left panel */}
+          {/* Left panel — Booking */}
           <SpotlightCard delay={0.1} className="h-full">
             <div className="p-6 sm:p-8 md:p-10 flex flex-col gap-6 h-full">
-              {/* Grows to fill */}
-              <div className="flex flex-col gap-6 flex-1">
-                <div>
-                  <h3 className="text-3xl font-bold mb-3 tracking-tight">Let&apos;s Build Something</h3>
-                  <p className="text-base text-muted-foreground leading-relaxed" style={{ textWrap: "pretty" }}>
-                    If you&apos;re hiring for software engineering, AI/ML engineering, or LLM infrastructure work, I&apos;d love to talk. I&apos;m also open to thoughtful collaborations and open-source conversations.
-                  </p>
-                </div>
-
-                {/* Social links */}
-                <div className="flex flex-col gap-3">
-                  {SOCIAL_LINKS.map(({ icon: Icon, label, value, href }) => (
-                    <a
-                      key={label}
-                      href={href}
-                      target={href.startsWith("mailto") ? undefined : "_blank"}
-                      rel="noopener noreferrer"
-                      className="group flex items-center gap-4 px-5 py-4 rounded-xl hover:bg-black/5 dark:hover:bg-white/5 border border-black/5 dark:border-white/5 hover:border-primary/20 dark:hover:border-primary/20 transition-all duration-300"
-                    >
-                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
-                        <Icon className="w-4 h-4 text-primary" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-[11px] font-mono text-muted-foreground uppercase tracking-widest mb-1">{label}</p>
-                        <p className="text-sm font-semibold truncate text-foreground/90">{value}</p>
-                      </div>
-                      <ArrowUpRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-primary transition-colors shrink-0" />
-                    </a>
-                  ))}
-                </div>
+              <div>
+                <h3 className="text-3xl font-bold mb-3 tracking-tight">Book a call</h3>
+                <p className="text-base text-muted-foreground leading-relaxed" style={{ textWrap: "pretty" }}>
+                  A 30-minute conversation about the role, the work I&apos;ve done, and whether it&apos;s a fit.
+                </p>
               </div>
-
-              {/* Pinned to bottom */}
-              <div className="mt-auto flex min-h-[122px] flex-col justify-between gap-4">
-                <a
-                  href={personalInfo.resumeUrl}
-                  download
-                  className="flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-primary text-primary-foreground font-bold text-sm tracking-wide shadow-[0_0_16px_rgba(41,214,185,0.14)] hover:shadow-[0_0_24px_rgba(41,214,185,0.2)] transition-all duration-300 active:scale-[0.98]"
-                >
-                  <Download className="w-4 h-4" />
-                  Download Resume
-                </a>
-                <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground border-t border-black/10 dark:border-white/5 pt-4">
-                  <span className="w-2 h-2 rounded-full bg-primary animate-pulse motion-reduce:animate-none shrink-0 shadow-[0_0_6px_rgba(41,214,185,0.28)]" />
-                  Available for new opportunities
-                </div>
-              </div>
+              <BookingEmbed />
             </div>
           </SpotlightCard>
 
@@ -375,6 +336,54 @@ const ContactSection = () => {
             </form>
           </SpotlightCard>
         </div>
+
+        {/* Facts row — contact details, resume, availability */}
+        <motion.div
+          initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 16 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: shouldReduceMotion ? 0.2 : 0.6, delay: shouldReduceMotion ? 0 : 0.15 }}
+          className="mt-6 max-w-5xl 2xl:max-w-7xl mx-auto"
+        >
+          <SpotlightCard delay={0.3} animateOnEnter={false}>
+            <div className="p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center gap-6 sm:gap-4">
+              <div className="grid sm:grid-cols-3 gap-3 flex-1">
+                {SOCIAL_LINKS.map(({ icon: Icon, label, value, href }) => (
+                  <a
+                    key={label}
+                    href={href}
+                    target={href.startsWith("mailto") ? undefined : "_blank"}
+                    rel="noopener noreferrer"
+                    className="group flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-black/5 dark:hover:bg-white/5 border border-black/5 dark:border-white/5 hover:border-primary/20 dark:hover:border-primary/20 transition-all duration-300"
+                  >
+                    <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
+                      <Icon className="w-4 h-4 text-primary" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-0.5">{label}</p>
+                      <p className="text-sm font-semibold truncate text-foreground/90">{value}</p>
+                    </div>
+                    <ArrowUpRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-primary transition-colors shrink-0" />
+                  </a>
+                ))}
+              </div>
+
+              <div className="flex items-center gap-4 sm:pl-4 sm:border-l border-black/10 dark:border-white/5 shrink-0">
+                <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground whitespace-nowrap">
+                  <span className="w-2 h-2 rounded-full bg-primary animate-pulse motion-reduce:animate-none shrink-0 shadow-[0_0_6px_rgba(41,214,185,0.28)]" />
+                  Available for new opportunities
+                </div>
+                <a
+                  href={personalInfo.resumeUrl}
+                  download
+                  className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-primary text-primary-foreground font-bold text-sm tracking-wide shadow-[0_0_16px_rgba(41,214,185,0.14)] hover:shadow-[0_0_24px_rgba(41,214,185,0.2)] transition-all duration-300 active:scale-[0.98] whitespace-nowrap"
+                >
+                  <Download className="w-4 h-4" />
+                  Resume
+                </a>
+              </div>
+            </div>
+          </SpotlightCard>
+        </motion.div>
       </div>
     </section>
   );

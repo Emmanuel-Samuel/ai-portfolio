@@ -18,6 +18,7 @@ const NAV_LINKS = [
 const ROUTE_LINKS = [
   { label: "Blog", href: "/blog" },
   { label: "Terminal", href: "/terminal" },
+  { label: "Work With Me", href: "/work-with-me" },
 ];
 
 const SOCIAL_LINKS = [

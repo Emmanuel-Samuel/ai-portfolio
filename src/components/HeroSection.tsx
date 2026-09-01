@@ -2,8 +2,9 @@
 import { useEffect, useState, useRef } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
-import { ArrowDown, MessageCircle, Download } from "lucide-react";
+import { ArrowDown, MessageCircle, Download, CalendarDays } from "lucide-react";
 import { personalInfo, stats } from "@/data/portfolio";
+import { scrollToHash } from "@/lib/scroll";
 import Card3D from "./Card3D";
 import ProfileCard from "./ProfileCard";
 
@@ -136,6 +137,17 @@ const HeroSection = () => {
                 <Download className="w-4 h-4 mr-1 text-primary" />
                 Resume
               </a>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  scrollToHash("#contact");
+                }}
+                className="inline-flex w-full sm:w-auto justify-center items-center gap-2 px-8 py-3.5 rounded-full bg-white/5 dark:bg-white/[0.02] backdrop-blur-lg border border-primary/50 dark:border-primary/50 font-bold text-foreground text-sm tracking-wide hover:bg-primary/10 transition-all duration-300 active:scale-95"
+              >
+                <CalendarDays className="w-4 h-4 mr-1 text-primary" />
+                Book a Call
+              </button>
               <a
                 href="#ai-twin"
                 className="inline-flex w-full sm:w-auto justify-center items-center gap-2 px-6 py-3.5 rounded-full hover:bg-white/5 transition-all duration-300 font-semibold text-sm text-muted-foreground hover:text-foreground active:scale-95"
