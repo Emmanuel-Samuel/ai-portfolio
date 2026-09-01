@@ -5,7 +5,7 @@ import { siteConfig, ogLocale } from "@/lib/seo/site";
 
 export const metadata: Metadata = {
   title: `Blog — ${siteConfig.author}`,
-  description: "Notes on building LLM infrastructure, autonomous agents, and production AI systems.",
+  description: "My thoughts on building AI systems that run in production - agents, retrieval, cost and the things that break.",
   alternates: {
     canonical: `${siteConfig.siteUrl}/blog`,
   },
@@ -14,13 +14,13 @@ export const metadata: Metadata = {
     locale: ogLocale,
     url: `${siteConfig.siteUrl}/blog`,
     title: `Blog — ${siteConfig.author}`,
-    description: "Notes on building LLM infrastructure, autonomous agents, and production AI systems.",
+    description: "My thoughts on building AI systems that run in production - agents, retrieval, cost and the things that break.",
     siteName: siteConfig.siteName,
   },
   twitter: {
     card: "summary_large_image",
     title: `Blog — ${siteConfig.author}`,
-    description: "Notes on building LLM infrastructure, autonomous agents, and production AI systems.",
+    description: "My thoughts on building AI systems that run in production - agents, retrieval, cost and the things that break.",
   },
 };
 
@@ -38,7 +38,7 @@ export default function BlogPage() {
             <span className="text-gradient">Blog</span>
           </h1>
           <p className="text-muted-foreground leading-relaxed max-w-xl text-lg">
-            Notes on building LLM infrastructure, autonomous agents, and production AI systems.
+            My thoughts on building AI systems that run in production - agents, retrieval, cost and the things that break.
           </p>
         </div>
 
