@@ -2,7 +2,7 @@ export const personalInfo = {
   name: "Emmanuel Mayowa Samuel",
   role: "AI/ML Engineer",
   tagline:
-    "I build production agentic systems - LLM platforms on AWS Bedrock and Google Vertex AI, with MCP tool orchestration, retrieval-augmented generation and the guardrails, retries and cost instrumentation that keep them running.",
+    "I build AI that survives production. Agentic systems on AWS Bedrock and Google Vertex AI with MCP tool orchestration and RAG, classical ML for anomaly detection and forecasting, and the full stack around both - from PostgreSQL schema to deployment.",
   focus:
     "Open to remote AI/ML Engineer, Forward Deployed Engineer and Software Engineer roles (US/EU), where I can own systems from schema to production.",
   email: "samuelmayowaemmanuel@gmail.com",
@@ -20,7 +20,7 @@ export const stats = [
 
 export const about = {
   summary:
-    "I build AI systems that run in production, not prototypes. Most of my work is agentic: LLM systems that use tools, hold state, and have to keep working when a provider returns a 429 at 3am. I design multi-tenant LLM platforms on AWS Bedrock and Google Vertex AI, and own them end to end - PostgreSQL schema, FastAPI or NestJS service, Next.js surface, deployment. Not all of it is generative; I have also built AIOps, with anomaly detection, forecasting and root-cause ranking over live telemetry.",
+    "I build AI systems that run in production, not prototypes. Much of my work is agentic: LLM systems that use tools, hold state, and have to keep working when a provider returns a 429 at 3am - multi-tenant platforms on AWS Bedrock and Google Vertex AI, with guardrails, retries and per-call cost instrumentation. Plenty of it is not generative at all. I have built AIOps over live telemetry, with anomaly detection, forecasting, change-point detection and root-cause ranking, and ensemble models combining Poisson regression, XGBoost and Elo with Monte Carlo simulation. I own the stack around both, from PostgreSQL schema through FastAPI or NestJS to the Next.js surface and deployment.",
   highlights: [
     "Architected LangGraph agents on AWS Bedrock AgentCore across 7 product lines, loading tool catalogues at runtime over MCP from vendored OpenAPI contracts.",
     "Diagnosed a production tool-routing failure and re-architected a supervisor plus five sub-agent system into a flat single-agent design over a unified ~23-tool catalogue.",
