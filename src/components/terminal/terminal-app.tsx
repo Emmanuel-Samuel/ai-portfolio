@@ -2,10 +2,18 @@
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { runCommand, welcome, PINNED_COMMANDS } from "@/components/terminal/commands";
+import {
+  runCommand,
+  welcome,
+  formatMarkdown,
+  PINNED_COMMANDS,
+} from "@/components/terminal/commands";
 
 const PROMPT = "emmanuel@portfolio:~$";
 const LINE_DELAY_MS = 90;
+const MAX_HISTORY = 12;
+
+type ChatMessage = { content: string; sender: "user" | "ai" };
 
 type HistoryEntry = {
   id: number;
@@ -31,12 +39,25 @@ function isFileHref(href: string) {
   return /\.[a-z0-9]+$/i.test(href);
 }
 
+// Small animated "thinking..." line so a 10-15s API round trip never looks hung.
+function ThinkingIndicator() {
+  const [dots, setDots] = useState(1);
+  useEffect(() => {
+    const id = setInterval(() => setDots((d) => (d % 3) + 1), 400);
+    return () => clearInterval(id);
+  }, []);
+  return <span className="text-zinc-400">{`thinking${".".repeat(dots)}`}</span>;
+}
+
 export default function TerminalApp() {
   const router = useRouter();
   const [entries, setEntries] = useState<HistoryEntry[]>([bannerEntry()]);
   const [input, setInput] = useState("");
   const [cmdHistory, setCmdHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState<number | null>(null);
+  const [aiHistory, setAiHistory] = useState<ChatMessage[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const lastQueryRef = useRef<string | null>(null);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -104,13 +125,101 @@ export default function TerminalApp() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const handleAiQuery = useCallback(
+    async (query: string, echoCommand: string) => {
+      const id = nextId++;
+      lastQueryRef.current = query;
+      setIsLoading(true);
+      setEntries((prev) => [
+        ...prev,
+        { id, command: echoCommand, lines: [<ThinkingIndicator key="thinking" />], revealed: 1 },
+      ]);
+
+      try {
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: query, conversationHistory: aiHistory }),
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          const errorLines: ReactNode[] = [
+            <span key="err" className="text-rose-400">
+              {data?.error ?? "Something went wrong."}
+            </span>,
+          ];
+          if (data?.retryable) {
+            errorLines.push(
+              <span key="retry-hint" className="text-zinc-400">
+                Type <span className="text-zinc-100">retry</span> to try again.
+              </span>,
+            );
+          }
+          setEntries((prev) =>
+            prev.map((e) => (e.id === id ? { ...e, lines: errorLines, revealed: errorLines.length } : e)),
+          );
+          return;
+        }
+
+        const answer = typeof data?.response === "string" ? data.response : "";
+        const answerLines = formatMarkdown(answer);
+        setEntries((prev) =>
+          prev.map((e) => (e.id === id ? { ...e, lines: answerLines, revealed: answerLines.length } : e)),
+        );
+        setAiHistory((prev) =>
+          [...prev, { content: query, sender: "user" as const }, { content: answer, sender: "ai" as const }].slice(
+            -MAX_HISTORY,
+          ),
+        );
+      } catch {
+        const failLines: ReactNode[] = [
+          <span key="neterr" className="text-rose-400">
+            Network error — couldn&apos;t reach the assistant.
+          </span>,
+          <span key="neterr-retry" className="text-zinc-400">
+            Type <span className="text-zinc-100">retry</span> to try again.
+          </span>,
+        ];
+        setEntries((prev) =>
+          prev.map((e) => (e.id === id ? { ...e, lines: failLines, revealed: failLines.length } : e)),
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [aiHistory],
+  );
+
   const submitCommand = useCallback(
     (raw: string) => {
+      if (isLoading) return;
       const command = raw.trim();
-      const result = runCommand(command);
 
+      if (command.toLowerCase() === "retry") {
+        if (!lastQueryRef.current) {
+          const id = nextId++;
+          const lines: ReactNode[] = [
+            <span key="noretry" className="text-zinc-400">
+              No previous question to retry.
+            </span>,
+          ];
+          setEntries((prev) => [...prev, { id, command, lines, revealed: lines.length }]);
+          return;
+        }
+        void handleAiQuery(lastQueryRef.current, command);
+        return;
+      }
+
+      const result = runCommand(command, (suggestion) => submitCommand(suggestion));
+
+      if (result.kind === "ai") {
+        void handleAiQuery(result.query, command);
+        return;
+      }
       if (result.kind === "clear") {
         setEntries([]);
+        setAiHistory([]);
         return;
       }
       if (result.kind === "navigate") {
@@ -129,10 +238,11 @@ export default function TerminalApp() {
       ]);
       startTyping(id, result.lines.length);
     },
-    [router, startTyping],
+    [router, startTyping, isLoading, handleAiQuery],
   );
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (isLoading) return;
     if (e.key === "Enter") {
       if (typingEntryIdRef.current !== null) {
         skipTyping();
@@ -218,17 +328,25 @@ export default function TerminalApp() {
           </div>
         ))}
         <div className="flex items-center gap-2">
-          <span className="text-[#29D6B9] shrink-0">{PROMPT}</span>
+          <span className={`shrink-0 ${isLoading ? "text-zinc-600" : "text-[#29D6B9]"}`}>{PROMPT}</span>
           <input
             ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
+            disabled={isLoading}
             autoComplete="off"
             spellCheck={false}
-            className="flex-1 min-w-0 bg-transparent outline-none border-none text-zinc-100 caret-transparent"
+            aria-busy={isLoading}
+            placeholder={isLoading ? "waiting for response…" : undefined}
+            className={`flex-1 min-w-0 bg-transparent outline-none border-none caret-transparent placeholder:text-zinc-600 ${
+              isLoading ? "text-zinc-600" : "text-zinc-100"
+            }`}
           />
-          <span className="w-2 h-4 bg-[#29D6B9] animate-pulse" aria-hidden />
+          <span
+            className={`w-2 h-4 animate-pulse ${isLoading ? "bg-zinc-600" : "bg-[#29D6B9]"}`}
+            aria-hidden
+          />
         </div>
       </div>
     </div>

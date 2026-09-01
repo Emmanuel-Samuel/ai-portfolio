@@ -33,6 +33,21 @@ function withTimeout<T>(promise: Promise<T>, timeoutMs: number) {
   });
 }
 
+// Short, human-quotable reference for every submission: PF-YYMMDD-XXXX
+// Date prefix sorts chronologically in a mailbox; the suffix keeps it unique.
+function makeReference() {
+  const d = new Date();
+  const yy = String(d.getUTCFullYear()).slice(2);
+  const mm = String(d.getUTCMonth() + 1).padStart(2, "0");
+  const dd = String(d.getUTCDate()).padStart(2, "0");
+  const alphabet = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"; // no I/L/O/0/1 - avoids misreading
+  let suffix = "";
+  const bytes = new Uint8Array(4);
+  crypto.getRandomValues(bytes);
+  for (const b of bytes) suffix += alphabet[b % alphabet.length];
+  return `PF-${yy}${mm}${dd}-${suffix}`;
+}
+
 function escapeHtml(value: string) {
   return value
     .replace(/&/g, "&amp;")
@@ -110,6 +125,7 @@ export async function POST(request: Request) {
 
     const resend = new Resend(apiKey);
     const { name, email, reason, message } = parsed.data;
+    const reference = makeReference();
     const safeMessage = escapeHtml(message).replace(/\n/g, "<br />");
 
     const { data, error } = await withTimeout(
@@ -117,10 +133,11 @@ export async function POST(request: Request) {
         from: sender,
         to: recipients,
         replyTo: email,
-        subject: `[Portfolio] ${reason} inquiry from ${name}`,
+        subject: `[Portfolio ${reference}] ${reason} inquiry from ${name}`,
         text: [
           "New portfolio contact form submission",
           "",
+          `Reference: ${reference}`,
           `Name: ${name}`,
           `Email: ${email}`,
           `Reason: ${reason}`,
@@ -131,6 +148,7 @@ export async function POST(request: Request) {
         html: `
           <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #111827;">
             <h2 style="margin-bottom: 16px;">New portfolio contact form submission</h2>
+            <p style="margin: 0 0 12px; font-family: monospace; color: #6b7280;"><strong>Reference:</strong> ${reference}</p>
             <p style="margin: 0 0 8px;"><strong>Name:</strong> ${escapeHtml(name)}</p>
             <p style="margin: 0 0 8px;"><strong>Email:</strong> ${escapeHtml(email)}</p>
             <p style="margin: 0 0 8px;"><strong>Reason:</strong> ${escapeHtml(reason)}</p>
@@ -156,7 +174,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json(
-      { success: true, message: "Message sent successfully.", id: data?.id },
+      { success: true, message: "Message sent successfully.", reference, id: data?.id },
       { headers: rateLimitHeaders }
     );
   } catch (error) {
