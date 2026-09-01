@@ -21,6 +21,7 @@ const navLinks = [
 const routeLinks = [
   { href: "/blog", label: "Blog" },
   { href: "/terminal", label: "Terminal" },
+  { href: "/work-with-me", label: "Work With Me" },
 ];
 
 const Navbar = () => {
