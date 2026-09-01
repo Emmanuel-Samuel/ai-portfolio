@@ -35,7 +35,7 @@ export function getProviderApiKey(provider: LLMProvider): string | undefined {
 }
 
 export function getDefaultModelForProvider(provider: LLMProvider): string {
-  if (provider === "openrouter") return "google/gemini-2.5-flash";
+  if (provider === "openrouter") return "minimax/minimax-m3:free";
   if (provider === "gemini") return "gemini-2.5-flash";
   return "claude-sonnet-5";
 }
