@@ -81,7 +81,7 @@ export function buildProviderRequest(
   };
 
   if (provider === "openrouter") {
-    headers["HTTP-Referer"] = process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://emmanuelsamuel.dev";
+    headers["HTTP-Referer"] = process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://emmanuelmayowasamuel.vercel.app";
     headers["X-Title"] = "Emmanuel Samuel AI Twin";
   }
 

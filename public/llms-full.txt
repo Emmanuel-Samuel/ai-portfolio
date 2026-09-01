@@ -1,13 +1,13 @@
 # Emmanuel Mayowa Samuel Portfolio - AI discovery summary
 
-Site: https://emmanuel-samuel.github.io
+Site: https://emmanuelmayowasamuel.vercel.app
 Author: Emmanuel Mayowa Samuel
 Primary role: AI/ML Engineer
 Focus: Agentic LLM systems, MCP tool orchestration, retrieval-augmented generation, AIOps, and production LLM platform engineering on AWS Bedrock and Google Vertex AI
 
 Canonical pages:
-- https://emmanuel-samuel.github.io/
-- https://emmanuel-samuel.github.io/Emmanuel_Samuel_Resume.pdf
+- https://emmanuelmayowasamuel.vercel.app/
+- https://emmanuelmayowasamuel.vercel.app/Emmanuel_Samuel_Resume.pdf
 
 Important homepage sections:
 - Hero: role, focus, and links to resume, GitHub and LinkedIn

@@ -1,6 +1,6 @@
 import { about, personalInfo } from "@/data/portfolio";
 
-const siteUrl = "https://emmanuelsamuel.dev";
+const siteUrl = "https://emmanuelmayowasamuel.vercel.app";
 export const ogLocale = "en_US";
 
 export const siteConfig = {

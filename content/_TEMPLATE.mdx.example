@@ -1,0 +1,28 @@
+---
+title: "Your post title"
+summary: "One sentence. Shows on the /blog listing and in search results."
+date: "2026-09-01"
+tags: ["tag-one", "tag-two"]
+draft: true
+---
+
+Opening paragraph. No heading needed at the top - the title above is rendered
+for you, so starting with an H1 here would duplicate it.
+
+## A section heading
+
+Normal paragraphs. **Bold**, *italic*, and [links](https://example.com) work.
+
+```python
+# Code blocks get syntax highlighting
+def example():
+    return "shiki handles this"
+```
+
+> Blockquotes work too - good for pulling out a key line.
+
+- Bullet lists
+- Also work
+
+1. As do
+2. Numbered ones
