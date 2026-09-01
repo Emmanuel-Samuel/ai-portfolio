@@ -24,7 +24,15 @@ const CAL_BRAND = {
   },
 };
 
-const BookingEmbed = () => {
+type BookingEmbedProps = {
+  className?: string;
+  /** Tailwind height classes applied to the wrapper. Defaults to a bounded, scroll-inside height. */
+  height?: string;
+};
+
+const DEFAULT_HEIGHT = "h-[480px] sm:h-[560px]";
+
+const BookingEmbed = ({ className = "", height = DEFAULT_HEIGHT }: BookingEmbedProps) => {
   const [isReady, setIsReady] = useState(false);
   const shouldReduceMotion = useReducedMotion();
 
@@ -40,7 +48,10 @@ const BookingEmbed = () => {
         cssVarsPerTheme: CAL_BRAND,
         styles: { branding: { brandColor: "#29D6B9" } },
         hideEventTypeDetails: false,
-        layout: "month_view",
+        // column_view puts the calendar and time slots side by side instead of
+        // stacking a full month grid above a long vertical slot list, so it fits
+        // comfortably inside a bounded, scrollable container.
+        layout: "column_view",
       });
 
       setIsReady(true);
@@ -52,7 +63,10 @@ const BookingEmbed = () => {
   }, []);
 
   return (
-    <div className="relative w-full min-h-[560px] sm:min-h-[600px] rounded-2xl overflow-hidden border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5">
+    <div
+      className={`relative w-full ${height} rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 ${className}`}
+      style={{ overflowY: "auto", overflowX: "hidden" }}
+    >
       {!isReady && (
         <div
           className={`absolute inset-0 flex flex-col gap-3 p-6 ${
@@ -72,8 +86,8 @@ const BookingEmbed = () => {
       <Cal
         namespace={CAL_NAMESPACE}
         calLink={CAL_LINK}
-        style={{ width: "100%", height: "100%", minHeight: "560px", overflow: "scroll" }}
-        config={{ theme: "dark" }}
+        style={{ width: "100%", height: "100%", minHeight: "100%" }}
+        config={{ theme: "dark", layout: "column_view" }}
       />
     </div>
   );

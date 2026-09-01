@@ -161,11 +161,11 @@ const ContactSection = () => {
         </motion.div>
 
         {/* Two equal panels with Spotlight — booking first so it stacks above the form on mobile */}
-        <div className="grid lg:grid-cols-2 gap-6 items-stretch max-w-5xl 2xl:max-w-7xl mx-auto">
+        <div className="grid lg:grid-cols-2 gap-6 items-start max-w-5xl 2xl:max-w-7xl mx-auto">
 
           {/* Left panel — Booking */}
-          <SpotlightCard delay={0.1} className="h-full">
-            <div className="p-6 sm:p-8 md:p-10 flex flex-col gap-6 h-full">
+          <SpotlightCard delay={0.1}>
+            <div className="p-6 sm:p-8 md:p-10 flex flex-col gap-6">
               <div>
                 <h3 className="text-3xl font-bold mb-3 tracking-tight">Book a call</h3>
                 <p className="text-base text-muted-foreground leading-relaxed" style={{ textWrap: "pretty" }}>
@@ -177,8 +177,8 @@ const ContactSection = () => {
           </SpotlightCard>
 
           {/* Right panel — Form */}
-          <SpotlightCard delay={0.2} className="h-full">
-            <form onSubmit={handleSubmit} className="relative p-6 sm:p-8 md:p-10 flex flex-col gap-6 h-full" aria-busy={isSubmitting} noValidate>
+          <SpotlightCard delay={0.2}>
+            <form onSubmit={handleSubmit} className="relative p-6 sm:p-8 md:p-10 flex flex-col gap-6" aria-busy={isSubmitting} noValidate>
               <div className="absolute left-[-10000px] top-auto h-px w-px overflow-hidden" aria-hidden="true">
                 <label htmlFor="contact-website">Website</label>
                 <input
@@ -191,8 +191,7 @@ const ContactSection = () => {
                 />
               </div>
 
-              {/* Grows to fill */}
-              <div className="flex flex-col gap-6 flex-1">
+              <div className="flex flex-col gap-6">
                 <div>
                   <h3 className="text-3xl font-bold mb-3 tracking-tight">Send a Message</h3>
                   <p className="text-base text-muted-foreground leading-relaxed">
@@ -291,13 +290,14 @@ const ContactSection = () => {
                   )}
                 </div>
 
-                <div className="flex-1 flex flex-col min-h-[140px]">
+                <div className="flex flex-col">
                   <label htmlFor="contact-message" className="text-xs font-mono font-medium text-foreground/70 mb-2 block uppercase tracking-wider">Message</label>
                   <textarea
                     id="contact-message"
                     required
                     minLength={10}
                     maxLength={2000}
+                    rows={7}
                     disabled={isSubmitting}
                     value={form.message}
                     onChange={(e) => {
@@ -308,7 +308,7 @@ const ContactSection = () => {
                     }}
                     aria-invalid={Boolean(errors.message)}
                     aria-describedby={errors.message ? "contact-message-error" : undefined}
-                    className="flex-1 w-full px-4 py-3 rounded-xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-sm outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all resize-none placeholder:text-muted-foreground/40"
+                    className="w-full px-4 py-3 rounded-xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-sm outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all resize-none placeholder:text-muted-foreground/40"
                     placeholder="Tell me about the opportunity or idea..."
                   />
                   {errors.message && (
@@ -319,8 +319,7 @@ const ContactSection = () => {
                 </div>
               </div>
 
-              {/* Pinned to bottom */}
-              <div className="mt-auto flex min-h-[122px] flex-col justify-between gap-4">
+              <div className="flex flex-col justify-between gap-4">
                 <button
                   type="submit"
                   disabled={isSubmitting}
