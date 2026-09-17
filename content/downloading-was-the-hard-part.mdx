@@ -1,0 +1,86 @@
+---
+title: "My laptop could run the model - it just couldn't download it"
+summary: "A 4GB laptop GPU runs MiniCPM5-2B at 45 tokens a second. Getting the 2.7GB file onto the disk was the part that took all evening."
+date: "2026-09-18"
+tags: ["local-llm", "llamafile", "wsl", "windows"]
+draft: false
+---
+
+I wanted to point Magnitude CLI at a local model instead of a paid API. Two things got in the way immediately: it has no Windows build, and its model catalogue rejected every option I tried, because this laptop has an NVIDIA RTX 500 Ada Generation GPU with 4GB of VRAM and Magnitude only wants models that fit entirely on the card. Nothing on offer did.
+
+So I dropped a level. Forget the model manager - run the weights directly, expose an OpenAI-compatible endpoint on localhost, and point whatever tool I want at that. Running it turned out to be one command. Getting the file onto the disk took the rest of the evening.
+
+## Ollama stalled before it started
+
+The obvious first move:
+
+```powershell
+winget install --id Ollama.Ollama
+```
+
+The installer is around 1.5GB. It crawled, sat for several minutes without meaningful progress, and I killed it. I read that as an Ollama problem and went looking for a runner that was a single executable rather than an install - which is llamafile, version 0.10.6 in my case.
+
+It wasn't an Ollama problem. I just hadn't seen the real one yet.
+
+## Windows couldn't reach Hugging Face at all
+
+From git-bash, on Windows:
+
+```
+curl: (28) Failed to connect to huggingface.co port 443
+```
+
+That isn't slow, and it isn't throttling - it's a connect timeout. The host was unreachable. Same laptop, same Wi-Fi, same minute, from WSL2 Ubuntu: the connection opened fine and held about 1447 KB/s.
+
+I still can't tell you why. I looked for a proxy setting, found nothing obvious in the firewall rules, and stopped digging the moment I had a route that worked. So take this as an observation rather than a diagnosis - if you know what produces that specific Windows-versus-WSL split on one machine, I'd like to hear it.
+
+The pattern held all evening, though. GitHub, ollama.com, Docker Hub and PyPI all moved at 30-300 KB/s from the Windows side. Hugging Face from inside WSL stayed at 1-2MB/s. One network, two stacks, an order of magnitude between them.
+
+> The 4GB GPU was never the hard constraint. What actually shaped this entire setup was which HTTPS stack on my machine could reach which host.
+
+## The download died at 2.2GB
+
+WSL being reachable didn't mean it was stable:
+
+```
+curl: (56) Recv failure: Connection reset by peer
+```
+
+That landed at 2,269,379,385 bytes of 2,679,710,688 - about 85% of the way through a file I'd already waited a long time for. So the download became a resumable loop, writing straight onto the Windows filesystem through the WSL mount so the file would be where llamafile could see it:
+
+```bash
+# run from WSL. -C - resumes from whatever bytes already landed,
+# so a reset costs you the retry, not the whole file.
+cd /mnt/c/Users/emmas/minicpm5
+for i in 1 2 3 4 5; do
+  curl -L -C - -sS -o MiniCPM5-2B-Q8_0.gguf \
+    "https://huggingface.co/openbmb/MiniCPM5-2B-GGUF/resolve/main/MiniCPM5-2B-Q8_0.gguf" && break
+done
+```
+
+I used the Q8_0 quant - `MiniCPM5-2B-Q8_0.gguf`, 2,679,710,688 bytes. At 2B parameters there's enough VRAM headroom that dropping to Q4 buys you nothing you'd notice, so I took the higher-quality one. Check the sha256 against the one Hugging Face publishes when it finishes; after that many resumes you want to know the file is intact rather than assume it.
+
+## One command to run it
+
+This is the anticlimax. The whole thing that the evening was in service of:
+
+```powershell
+.\llamafile.exe --server --gpu nvidia -m MiniCPM5-2B-Q8_0.gguf `
+  -ngl 999 -c 16384 -np 1 `
+  --host 127.0.0.1 --port 8080 `
+  --temp 1.0 --top-p 0.95 --min-p 0.0
+```
+
+`-ngl 999` just means "put every layer you can on the GPU" - it's a ceiling, not a count. `-np 1` is a single parallel slot, because I'm the only one using it and I'd rather the context budget go to `-c 16384` than be split. The sampling values look high if you're used to temperature 0.2, but those are OpenBMB's own recommendations for this model, so I left them alone.
+
+That gives you an OpenAI-compatible server at `http://127.0.0.1:8080/v1`, model name `MiniCPM5-2B`. Anything that speaks that API can now use it.
+
+On a real prompt - asking it to write an `is_palindrome` function - the server's own timings came back at 121.7 tokens/sec for prompt processing (38 tokens in 312.2ms) and 45.1 tokens/sec generating (278 tokens in 6141.8ms). That's the Q8_0 quant, 16384 context, on the 4GB RTX 500 Ada, with an Intel Core Ultra 7 155H and 32GB of system RAM behind it. I noted roughly 1.9GB of VRAM in use at the time but never captured a clean `nvidia-smi` reading, so I wouldn't lean on that figure the way I'd lean on the throughput ones.
+
+45 tokens a second is genuinely usable for short completions. It is not going to replace a frontier model for anything that needs real reasoning, and I'd stop short of claiming otherwise.
+
+## What I'd skip next time
+
+If downloads just work on your machine, ignore most of this and use Ollama. It's a better experience than hand-rolling a llamafile server, and the only reason I'm not using it is that its installer wouldn't come down.
+
+What I'd actually keep is the habit that fixed the evening: when a download is slow, test the same URL from a different network stack on the same machine before you conclude anything about the host. I lost well over an hour treating a Windows-side connectivity problem as an Ollama problem, then as a Hugging Face problem, then as a bandwidth problem. It was none of those. WSL was sitting right there the whole time, on the same Wi-Fi, talking to the same server perfectly happily.
