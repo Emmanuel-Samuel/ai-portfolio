@@ -1,0 +1,140 @@
+---
+title: "A full video production studio, run by AI from a folder of text files"
+summary: "Two days setting up a complete video production suite on one laptop - audit, renderers, voice pipeline, editor - with every paid service switched off and $0 spent."
+date: "2026-09-18"
+tags: ["openmontage", "video", "ai-agents", "ffmpeg", "local-first"]
+draft: false
+---
+
+I wanted a full video production setup on one laptop: script, generate, render, edit, export. No subscriptions, no per-minute billing, nothing running on someone else's server. Two days later I had one, and the whole thing cost nothing to run.
+
+The core of it is OpenMontage, an open-source video production system you drive with instructions instead of a timeline. You describe the plan in plain text files - what happens, in what order, for how long - and an agent reads those, calls Python tools, and renders through FFmpeg, Remotion or HyperFrames. What comes out is an mp4 on your disk.
+
+I didn't write OpenMontage. I installed it, worked out what actually functioned on my machine, and filled the gaps. This is that, in the order it happened.
+
+## There is no integration. That surprised me too
+
+The first thing worth clearing up, because I assumed otherwise: I never wrote an API hookup, a plugin, or any glue code to connect an AI to this. There isn't one to write.
+
+You open the OpenMontage folder in Claude Code and type what you want in plain English. The repo carries its own instruction files, and those route the agent before it does anything else. Three layers do the work: a tool registry that knows what exists and whether it's configured, pipeline manifests and stage skills describing how this project wants each stage done, and vendor skills covering how to prompt a particular model well.
+
+Nothing is baked into a prompt. The agent asks the registry at runtime which providers are actually configured, and reports back "X of Y configured" per capability. That matters more than it sounds like it should - it's why the setup can tell you the truth about your own machine instead of the truth about the author's.
+
+Every production runs as a state machine: research, proposal, script, scene plan, assets, edit, compose. Each stage writes a JSON file and a checkpoint. Some stages are gated, meaning they stop and wait for a human to approve, and that approval gets recorded. A decision log keeps an append-only history of every choice - which provider, which runtime, which creative call.
+
+There's a local board too:
+
+```bash
+python -m backlot open <project-id>
+```
+
+It reads those checkpoint files off the disk and shows progress in a browser. It only watches. Killing it never interrupts a render, which is exactly what you want from a dashboard.
+
+Scale came from delegation. Research, builds, renders and reviews went to background sub-agents working in their own folders, with the main session reviewing every rendered frame. That worked until it didn't - more on that below.
+
+## Measure it before believing it
+
+The repo's notes claimed 36 of its 121 tools work with no API keys. I didn't take that on faith. First thing I did was run the registry's own summary and read what it said about *this* machine.
+
+The honest picture: FFmpeg worked, Remotion worked, HyperFrames didn't. Video generation 0 of 26 configured. Image generation 0 of 16. Text-to-speech 0 of 10. Music search 1 of 2. Video post-production 8 of 9, analysis 8 of 13.
+
+Everything reaching out to a paid service was dead. Everything running locally was mostly alive. That single reading shaped the next two days - no point planning around image generation when nothing on the machine could generate an image.
+
+HyperFrames had a specific complaint:
+
+```
+hyperframes: npm package `hyperframes` not resolvable: timeout (5s) -- offline or slow registry
+```
+
+Hold that thought.
+
+## The second renderer
+
+The install was ordinary. Prerequisites checked by hand - Node v22.20.0, npm 11.6.1, FFmpeg 9.0.1 - then:
+
+```bash
+npm view hyperframes version     # 0.8.36, took 2.863s on the retry
+npx --yes hyperframes --version  # 0.8.36
+npx hyperframes doctor           # all critical checks passed
+```
+
+`doctor` is the one to run. It checks Node, FFmpeg, FFprobe and headless Chrome - Chrome running with no window, which is how frames actually get drawn. Critical checks all passed; the warnings were for optional things I'd already decided to skip.
+
+The registry then reported all three renderers available.
+
+## One dependency sweep, one rule
+
+Instead of installing things as I tripped over them, I went through every dependency once against a fixed rule: install anything free, under about 1GB, needing no API key, no admin rights, no GPU. Anything bigger gets written down instead.
+
+Installed: Remotion's Chrome Headless Shell (~113MB), and the Piper text-to-speech voice `en_US-lessac-medium` (~60MB).
+
+Skipped, with the reason recorded beside each: local ComfyUI, lip-sync avatar models, local music generation, Blender, whisper-cpp, and every paid key. Mostly multi-gigabyte, GPU-hungry, or needing a compiler.
+
+One thing I found and didn't fix: Piper reads as unavailable even though it's installed, because the registry checks the system PATH while `piper.exe` sits inside the virtual environment's `Scripts` folder - only on PATH when that environment is active. Worth knowing before you go hunting for a missing install that isn't missing.
+
+## Filling the gaps with no money
+
+Three gaps needed closing, with every paid service off.
+
+**Music.** No library, no generation key. I synthesised the background drone in FFmpeg alone - sine roots plus harmonics plus filtered noise, with a very slow filter sweep over it. Came out 470 seconds, 48kHz, 24-bit, −23.96 LUFS with a true peak of −11.49 dBTP. LUFS is just the standard measure of how loud something really sounds; −23.96 is quiet, which is what you want under a voice.
+
+**Stills and clips.** Made by hand in Google's own apps from prompts written as I went, then dropped into the project folder. Slower than an API call, free, and the quality bar stays yours.
+
+**Voice.** Recorded properly rather than synthesised.
+
+Total spend across both days: $0.
+
+## Proving the audio chain before it mattered
+
+I ran the whole voice pipeline on a throwaway clip before any real recording existed. Piper generated test speech, I added pink noise to fake a room, then pushed it through: the clean-speech enhancement moved −16.8 to −16.2 LUFS, the transcriber (faster-whisper "small", which pulls a 320MB model on first run) took 8.61 seconds on CPU and returned 17 words with per-word timings, and the mixer with ducking landed at −15.8 LUFS against a −14 target.
+
+That last number justified the whole exercise. Being 1.8 LUFS under target isn't a catastrophe, but it told me the real master needs a two-pass loudness stage rather than one. Much better to learn that on a synthetic clip than on a finished episode.
+
+## Screenshots that have to match the page
+
+For on-screen sourcing I needed web screenshots and the registry had none - only desktop screen recorders. So I added Python Playwright with Chromium (~150MB), capturing at a 1600px viewport at double scale, which leaves enough resolution to crop into.
+
+The rule around it matters more than the install: every sentence I put on screen was string-matched against the page's actual rendered text before the crop was kept. If they didn't match exactly, the crop got thrown away.
+
+## Adding an editor, which makes it a suite
+
+OpenMontage produces. It doesn't give you a timeline to nudge things around on. For that I connected OpenChatCut, a separate local video editor, over MCP - the standard way an outside app hands its tools to Claude.
+
+This one *is* a real connection step. In the editor you pick external agents, it exposes an endpoint on a local port, and you click connect. The app writes its own entry into Claude Code's config file; nothing is typed by hand. I checked it before trusting it: the entry existed at both user and project scope, and the endpoint answered locally while refusing anonymous callers.
+
+The part that catches people out: **you have to restart.** Servers added mid-session aren't picked up. I closed Claude Code and reopened with `claude --continue` to resume the same conversation, and only then did its 31 tools appear - project targeting, timeline read and write, item timing, split and move, captions, markers, transcript search, render and export.
+
+Its status call is honest about what's usable. With no editor window open it reports the direct tier only; canvas inspection, generation, upload, render and export are all gated behind actually opening the editor in a browser. The app has to be running and a project open for the visual half to do anything.
+
+The division of labour I settled on: OpenMontage stays the production system - pipelines, generation, renders. OpenChatCut is for hands-on timeline work, like attaching a finished intro and outro to a real video, or a quick trim I'd rather see than describe.
+
+Honest limit: I connected it and verified it, and never used it for an actual edit. Later in the session it showed as disconnected, which is just what happens when you close the app.
+
+## The bug that nearly stopped everything
+
+Back to that 5-second timeout. The compose tool runs `npm view hyperframes version` to confirm the renderer exists, with the timeout hard-coded at 5 seconds, and it caches the failure for the life of the Python process. On my machine that call takes 5.7 to 7.5 seconds. So it fails, remembers failing, and refuses to render:
+
+```
+render_runtime='hyperframes' was locked at proposal, but the HyperFrames
+runtime is not available on this machine...
+```
+
+HyperFrames was healthy the whole time. Nothing was broken except a number that was slightly too small.
+
+> The tool wasn't wrong about what it measured. It was wrong about how long it was willing to wait, and then it remembered being wrong.
+
+The workaround was warming npm first, then retrying in a fresh Python process. One render landed on attempt 1 of 6. Another took until attempt 4, with the npm check timing 3.09, 5.09, 7.21 and 7.51 seconds across the tries. A one-line change to that timeout would fix it properly.
+
+I hit a resource wall too. Renders default to around ten headless Chrome processes and roughly 3.6GB, and the `--workers` setting isn't passed through the compose tools, so you can't turn it down from there. Combined with background sub-agents running their own jobs, I overloaded the laptop. The rule I wrote afterwards: at most two or three heavy jobs at once, and check for 6GB free before starting one.
+
+## Write the decisions down or repeat them
+
+The single biggest improvement wasn't an install. It was plain text files: a conventions file pinning canvas size, palette, fonts and safe area, with a legibility rule that any version number, date or command on screen must be at least 42px cap height at 1440p. An assembly plan. A resume file and a progress note so a cold start doesn't mean rereading everything.
+
+None of it touches OpenMontage's code. It's just the decisions, written where I'll find them again. Memory files carry across sessions too, so a fresh session picks up the same rules without being told twice.
+
+Where it ended up: channel intro and outro exported at 1920×1080, 30fps, −14.3 LUFS. A long-form episode built at 2560×1440, 30fps, with a full test export running 941.8 seconds of wall-clock - just under 16 minutes - producing 56.2MB, free RAM bottoming out at 4.4GB.
+
+If I did this again I'd still start with the audit, before installing anything at all. Reading a capability report that says 0 of 26 video generators are configured takes a minute and tells you the shape of the next two days. A project's claim about what works is a claim about someone else's machine.
+
+The exception is if you're paying for the keys anyway. Then most of those zeroes turn into ones, the gaps close themselves, and all of this is just a slower route to where you were already going.
