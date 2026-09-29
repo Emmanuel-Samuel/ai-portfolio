@@ -1,4 +1,4 @@
-export type LLMProvider = "anthropic" | "openrouter" | "gemini";
+export type LLMProvider = "anthropic" | "openrouter" | "gemini" | "nvidia";
 
 export interface ProviderChatMessage {
   role: "user" | "assistant";
@@ -24,25 +24,28 @@ const ANTHROPIC_VERSION = "2023-06-01";
 
 export function getLLMProvider(): LLMProvider {
   const raw = process.env.LLM_PROVIDER?.trim().toLowerCase();
-  if (raw === "openrouter" || raw === "gemini") return raw;
+  if (raw === "openrouter" || raw === "gemini" || raw === "nvidia") return raw;
   return "anthropic";
 }
 
 export function getProviderApiKey(provider: LLMProvider): string | undefined {
   if (provider === "openrouter") return process.env.OPENROUTER_API_KEY?.trim();
   if (provider === "gemini") return process.env.GEMINI_API_KEY?.trim();
+  if (provider === "nvidia") return process.env.NVIDIA_API_KEY?.trim();
   return process.env.ANTHROPIC_API_KEY?.trim();
 }
 
 export function getDefaultModelForProvider(provider: LLMProvider): string {
-  if (provider === "openrouter") return "minimax/minimax-m3:free";
+  if (provider === "openrouter") return "google/gemini-2.5-flash";
   if (provider === "gemini") return "gemini-2.5-flash";
+  if (provider === "nvidia") return "openai/gpt-oss-20b";
   return "claude-sonnet-5";
 }
 
 function getDefaultBaseUrl(provider: LLMProvider): string {
   if (provider === "openrouter") return "https://openrouter.ai/api/v1/chat/completions";
   if (provider === "gemini") return "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
+  if (provider === "nvidia") return "https://integrate.api.nvidia.com/v1/chat/completions";
   return "https://api.anthropic.com/v1/messages";
 }
 
@@ -73,7 +76,7 @@ export function buildProviderRequest(
     };
   }
 
-  // openrouter and gemini both speak the OpenAI-compatible Chat Completions format.
+  // openrouter, gemini and nvidia all speak the OpenAI-compatible Chat Completions format.
   const headers: Record<string, string> = {
     "Authorization": `Bearer ${apiKey}`,
     "Accept": "application/json",
