@@ -228,14 +228,17 @@ const AITwinChat = () => {
 
   useEffect(() => {
     try {
-      const stored = window.localStorage.getItem(CHAT_STORAGE_KEY);
+      // Chats used to live in localStorage; drop that leftover copy so it can't resurface.
+      window.localStorage.removeItem(CHAT_STORAGE_KEY);
+
+      const stored = window.sessionStorage.getItem(CHAT_STORAGE_KEY);
       if (stored) {
         const parsedEnvelope = parseStoredChatEnvelope<Message>(JSON.parse(stored));
 
         if (parsedEnvelope) {
           setMessages(sanitizeStoredMessages(parsedEnvelope.messages));
         } else {
-          window.localStorage.removeItem(CHAT_STORAGE_KEY);
+          window.sessionStorage.removeItem(CHAT_STORAGE_KEY);
         }
       }
     } catch (error) {
@@ -254,7 +257,7 @@ const AITwinChat = () => {
         ...trimConversationHistory(messages, CHAT_MEMORY_WINDOW),
       ];
 
-      window.localStorage.setItem(
+      window.sessionStorage.setItem(
         CHAT_STORAGE_KEY,
         JSON.stringify(createStoredChatEnvelope(memoryMessages)),
       );
@@ -670,7 +673,7 @@ const AITwinChat = () => {
     pendingUserMessageIdRef.current = null;
 
     try {
-      window.localStorage.removeItem(CHAT_STORAGE_KEY);
+      window.sessionStorage.removeItem(CHAT_STORAGE_KEY);
     } catch (error) {
       console.warn("Failed to clear AI Twin chat history:", error);
     }
