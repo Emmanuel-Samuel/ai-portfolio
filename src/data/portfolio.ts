@@ -2,7 +2,7 @@ export const personalInfo = {
   name: "Emmanuel Mayowa Samuel",
   role: "AI/ML Engineer",
   tagline:
-    "I build AI that survives production. Agentic systems on AWS Bedrock and Google Vertex AI with MCP tool orchestration and RAG, classical ML for anomaly detection and forecasting, and the full stack around both - from PostgreSQL schema to deployment.",
+    "I'm a software engineer who works mostly on AI systems. Recently I built LangGraph agents that serve seven product lines from one platform, and an AIOps console that pulls six monitoring systems into one place and ranks the likely cause when something breaks.",
   focus:
     "Open to remote AI/ML Engineer, Forward Deployed Engineer and Software Engineer roles (US/EU), where I can own systems from schema to production.",
   email: "samuelmayowaemmanuel@gmail.com",
