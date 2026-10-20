@@ -3,7 +3,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { ExternalLink, GitMerge, Github, Star } from "lucide-react";
-import { openSourceProjects } from "@/data/portfolio";
+import { maintainedOpenSource, openSourceProjects } from "@/data/portfolio";
 import { SpotlightCard } from "@/components/ui/spotlight-card";
 
 function formatMergedDate(value: string) {
@@ -33,14 +33,16 @@ const OpenSourceSection = () => {
             Open Source
           </div>
           <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
-            Merged <span className="text-gradient">Contributions</span>
+            Open Source <span className="text-gradient">Work</span>
           </h2>
           <p className="text-muted-foreground leading-relaxed max-w-xl text-lg">
-            Bugs I hit while using other people&apos;s tools, reported with a repro and fixed upstream.
+            Bugs I fixed upstream in other people&apos;s tools, and the projects I build and maintain myself.
           </p>
         </motion.div>
 
-        <div className="flex flex-col gap-8 max-w-5xl 2xl:max-w-7xl mx-auto">
+        <div className="flex flex-col gap-16 max-w-5xl 2xl:max-w-7xl mx-auto">
+          <div className="flex flex-col gap-8">
+          <h3 className="text-sm font-mono uppercase tracking-widest text-muted-foreground">Contributions</h3>
           {openSourceProjects.map((project) => (
             <motion.div
               key={project.repo}
@@ -134,6 +136,57 @@ const OpenSourceSection = () => {
               </SpotlightCard>
             </motion.div>
           ))}
+          </div>
+
+          <motion.div
+            initial={fadeIn}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ delay: shouldReduceMotion ? 0 : 0.15, duration: shouldReduceMotion ? 0.2 : 0.6 }}
+            className="flex flex-col gap-8"
+          >
+            <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+              <h3 className="text-sm font-mono uppercase tracking-widest text-muted-foreground">
+                Projects I maintain
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                <a
+                  href={maintainedOpenSource.orgUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-foreground hover:text-primary transition-colors"
+                >
+                  {maintainedOpenSource.org}
+                </a>{" "}
+                · {maintainedOpenSource.role}
+              </p>
+            </div>
+            <ul className="grid gap-6 md:grid-cols-2">
+              {maintainedOpenSource.repos.map((repo) => (
+                <li key={repo.name} className="flex">
+                  <SpotlightCard className="w-full relative bg-background dark:bg-background border-black/10 dark:border-white/10 backdrop-blur-none backdrop-saturate-100">
+                    <a
+                      href={repo.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex h-full flex-col p-6 sm:p-8"
+                    >
+                      <span className="text-xs font-mono uppercase tracking-widest text-primary mb-3 block">
+                        {repo.status} · {repo.language} · {repo.license}
+                      </span>
+                      <h4 className="text-2xl font-bold tracking-tight mb-3">{repo.name}</h4>
+                      <p className="text-base text-muted-foreground leading-relaxed text-pretty flex-1 mb-6">
+                        {repo.summary}
+                      </p>
+                      <span className="inline-flex items-center gap-2 text-sm font-semibold text-foreground">
+                        <Github className="w-5 h-5" aria-hidden="true" />
+                        View on GitHub
+                      </span>
+                    </a>
+                  </SpotlightCard>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
         </div>
       </div>
     </section>

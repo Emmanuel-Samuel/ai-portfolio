@@ -1,4 +1,4 @@
-import { about, experiences, openSourceProjects, personalInfo, projects, skillCategories, stats } from "@/data/portfolio";
+import { about, experiences, maintainedOpenSource, openSourceProjects, personalInfo, projects, skillCategories, stats } from "@/data/portfolio";
 
 export const CHAT_MEMORY_WINDOW = 10;
 export const CHAT_STORAGE_KEY = "emmanuel-ai-twin-chat";
@@ -127,6 +127,13 @@ const openSourceContext = openSourceProjects
   )
   .join("\n");
 
+const maintainedContext = `- ${maintainedOpenSource.org} (${maintainedOpenSource.orgUrl}): Emmanuel is its ${maintainedOpenSource.role}.\n${maintainedOpenSource.repos
+  .map(
+    (repo) =>
+      `  - ${repo.name} (${repo.language}, ${repo.license}, ${repo.status}): ${repo.summary} Repo: ${repo.url}`
+  )
+  .join("\n")}`;
+
 export const PORTFOLIO_CONTEXT = `
 Personal info:
 - Name: ${personalInfo.name}
@@ -155,6 +162,10 @@ Open source contributions (all merged; section link: #open-source):
 ${openSourceContext}
 When discussing these, state only the facts above, link the PR and issue URLs, and do not add claims about the project beyond its description.
 
+Open source projects he founded and maintains (his own, NOT contributions to other people's projects; same section: #open-source):
+${maintainedContext}
+When discussing these, state only the facts above, link the repo URLs, and do not add claims, metrics, users or results beyond what is written.
+
 Navigation links:
 - Contact section: #contact
 - Projects section: #projects
@@ -169,6 +180,8 @@ When links would help the user, use these markdown links directly in the answer:
 - [View GitHub](${personalInfo.github})
 - [Browse Projects](#projects)
 - [Open Source Contributions](#open-source)
+- [Benaiah Studio on GitHub](${maintainedOpenSource.orgUrl})
+${maintainedOpenSource.repos.map((repo) => `- [Open ${repo.name} Repo](${repo.url})`).join("\n")}
 - [Download Resume](${personalInfo.resumeUrl})
 ${projects
   .map(

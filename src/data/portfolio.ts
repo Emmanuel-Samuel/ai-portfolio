@@ -404,6 +404,48 @@ export const openSourceProjects: OpenSourceProject[] = [
   },
 ];
 
+export interface MaintainedRepo {
+  name: string;
+  url: string;
+  summary: string;
+  status: string;
+  license: string;
+  language: string;
+}
+
+export interface MaintainedOpenSource {
+  org: string;
+  orgUrl: string;
+  role: string;
+  repos: MaintainedRepo[];
+}
+
+export const maintainedOpenSource: MaintainedOpenSource = {
+  org: "Benaiah Studio",
+  orgUrl: "https://github.com/benaiahstudio",
+  role: "Founder",
+  repos: [
+    {
+      name: "figma-to-code",
+      url: "https://github.com/benaiahstudio/figma-to-code",
+      summary:
+        "Reads a selected Figma frame, saves it as files on your computer, and checks the built page against the design. Made for people on Figma's free plan who code with an AI tool.",
+      status: "v0.1 beta",
+      license: "MIT",
+      language: "JavaScript",
+    },
+    {
+      name: "figma-bench",
+      url: "https://github.com/benaiahstudio/figma-bench",
+      summary:
+        "Gives each Figma-to-code tool the same frames and brief, then scores the results with a separate scorer. Made for comparing these tools; round 1 results are published.",
+      status: "v0.1 beta",
+      license: "MIT",
+      language: "JavaScript",
+    },
+  ],
+};
+
 export const chatSuggestions = [
   "How do you keep LLM agents reliable in production?",
   "Tell me about the agent architecture you had to rebuild.",
