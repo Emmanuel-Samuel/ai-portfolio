@@ -1,0 +1,66 @@
+---
+title: "Two Windows bugs, two merged PRs: my first contribution to Whiteboard"
+summary: "Whiteboard hung at start-up on my Windows 11 machine and couldn't see Claude Code. Both turned out to be Unix assumptions in Node code, and both fixes were merged the same day."
+date: "2026-10-20"
+tags: ["open-source", "nodejs", "windows", "typescript", "whiteboard"]
+draft: false
+---
+
+Whiteboard is an open-source canvas for software design, about 3.2k stars, MIT, written in TypeScript. I'd been using it on Windows 11 when two things broke on the same version (0.3.3). Desktop sat on a spinner and then told me "Session unavailable". Separately, it acted as if Claude Code wasn't installed. I fixed both and the maintainer merged both PRs on 19 October. These are my first merged contributions to a project this size, so I want to write down what actually happened.
+
+## The hang
+
+The error said the Review server did not become ready within 120000ms. That tells you nothing, so I went to `main.log`, which had the real one:
+
+```
+TypeError [ERR_UNKNOWN_SIGNAL]: Unknown signal: SIGUSR2
+    at process.kill (node:internal/process/per_thread:272:15)
+    at stopBackgroundServer
+    at takeOverServerHome
+```
+
+I'd run a headless server once (`whiteboard server start`) and stopped using it. That leaves a `server.json` and a lock file behind. When Desktop starts, it finds that record and takes the server over by killing the old one with SIGUSR2. Windows has no SIGUSR2. Node throws synchronously, the function only swallowed `ESRCH`, and the throw escaped the whole start-up path.
+
+That was the obvious half. The less obvious half is that the recorded PID didn't even belong to a Whiteboard server any more. Windows had handed it to an unrelated process (a `chrome-devtools-mcp` watchdog, in my case). The lock code tries to catch this by comparing process start times, but it reads them with `ps`, and that doesn't work on Windows. So the stranger looked like the owner.
+
+So the fix needed two changes, and the second one matters more. Even with a valid signal, you shouldn't send anything to a PID because a file says so. In the PR (#1223), Desktop only signals the recorded server if it answers its health check as the same process. If nothing answers, there's nobody to kill. And on Windows it sends SIGTERM instead of SIGUSR2. Node's docs say SIGTERM on Windows kills the process outright, so there's no graceful shutdown to hope for, but it doesn't throw.
+
+There's a trade-off I'd rather state than hide. Without a start time, Desktop can't prove the lock's PID is the server. So when nothing answers, it waits 30 seconds, then removes the stale lock and starts. I tested it with a stale record pointing at an unrelated process: Desktop started after about 30 seconds and the other process kept running. With a live headless server, it stopped it and started at once. Thirty seconds is slow. It's still better than a hang, and nothing innocent gets killed.
+
+## Claude Code that wasn't there
+
+The second bug was simpler. I had installed Claude Code with the native installer, so it lives at `%USERPROFILE%\.local\bin\claude.exe`. PowerShell found it. `whiteboard connect --detect` listed Codex as not connected and didn't mention Claude Code at all. Onboarding, Settings, and Ask all missed it too, which means anyone with only a Claude subscription couldn't use Ask.
+
+The cause was one function in `packages/review/src/ask/agents.ts`, `findExecutable`. It checked `path.join(directory, command)`, the bare name. On Windows a file called `claude` doesn't run, and one called `claude.exe` never matches the bare name. Codex only worked by accident: npm drops an extensionless `codex` shell script next to `codex.cmd`, and that script matched.
+
+I had a workaround before I had a fix. I made my own extensionless shim that ran `claude.exe`, and detection immediately printed "Claude Code: connected". That confirmed the diagnosis and went into the issue as a workaround.
+
+The fix (#1225) is what Windows itself does, roughly. Try `<name>.exe`, then `<name>.cmd`. Skip the extensionless shell shim that npm and pnpm leave beside a `.cmd`. And when the thing you found is a `.cmd`, start it through `cmd.exe`, since Node can't spawn a batch file directly. Here's the idea as a sketch, not the code from the PR:
+
+```ts
+const WINDOWS_EXTENSIONS = [".exe", ".cmd"];
+
+function candidates(dir: string, name: string) {
+  return process.platform === "win32"
+    ? WINDOWS_EXTENSIONS.map((ext) => path.join(dir, name + ext))
+    : [path.join(dir, name)];
+}
+```
+
+I also added Claude Code's usual install folders (`~/.claude/local` and `~/.local/bin`) to Ask's search, which connect already did. I tested Claude Code, Codex and OpenCode detection on Windows 11. Connect worked for Claude Code and Codex, and Ask got answers from Codex and OpenCode.
+
+## How I reported them
+
+I wrote each issue so the maintainer could reproduce it without asking me anything: the version and OS, numbered steps, the log lines pasted as they were, the suspected cause with function names, and a workaround. Then I sent the PR with "Fixes #N" and a description that says what changed and what I tested. Both PRs touched three files, with tests included. Small PRs with a clear description were easy to merge.
+
+## What I'd carry into the next Node project
+
+Signals aren't portable. SIGUSR2 and friends exist on Unix, and on Windows `process.kill` throws for most of them. If you're stopping a process, check the platform first.
+
+A PID in a file is a claim, not a fact. PIDs get reused, and mine was. Ask the process whether it's the thing you think it is before you signal it.
+
+Executables have extensions on Windows, and `.cmd` needs `cmd.exe`. Any code that looks things up on `PATH` by bare name works on a Mac and silently fails somewhere else.
+
+Neither bug was clever. Each was a Unix assumption in code that worked everywhere its author tested.
+
+The code is in [PR #1223](https://github.com/devdotfast/whiteboard/pull/1223) (issue [#1222](https://github.com/devdotfast/whiteboard/issues/1222)) and [PR #1225](https://github.com/devdotfast/whiteboard/pull/1225) (issue [#1224](https://github.com/devdotfast/whiteboard/issues/1224)).

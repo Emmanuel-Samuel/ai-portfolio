@@ -342,10 +342,73 @@ export const leadership: Leadership[] = [
   },
 ];
 
+export interface OpenSourceContribution {
+  title: string;
+  problem: string;
+  fix: string;
+  issueNumber: number;
+  issueUrl: string;
+  prNumber: number;
+  prUrl: string;
+  mergedAt: string;
+}
+
+export interface OpenSourceProject {
+  name: string;
+  repo: string;
+  repoUrl: string;
+  siteUrl?: string;
+  postPath?: string;
+  description: string;
+  stars: string;
+  license: string;
+  language: string;
+  contributions: OpenSourceContribution[];
+}
+
+export const openSourceProjects: OpenSourceProject[] = [
+  {
+    name: "Whiteboard",
+    repo: "devdotfast/whiteboard",
+    repoUrl: "https://github.com/devdotfast/whiteboard",
+    siteUrl: "https://whiteboard.dev.fast/",
+    postPath: "/blog/two-windows-bugs-two-merged-prs",
+    description: "Open-source canvas for thoughtful software design.",
+    stars: "3.2k",
+    license: "MIT",
+    language: "TypeScript",
+    contributions: [
+      {
+        title: "Let Desktop take over a stale headless server on Windows",
+        problem:
+          "Desktop hung at start-up on Windows because it stopped the recorded server with SIGUSR2, a signal Windows doesn't have, so Node threw.",
+        fix: "Only signal the recorded server if it answers its health check as the same process, which guards against Windows reusing the PID. Use SIGTERM on Windows.",
+        issueNumber: 1222,
+        issueUrl: "https://github.com/devdotfast/whiteboard/issues/1222",
+        prNumber: 1223,
+        prUrl: "https://github.com/devdotfast/whiteboard/pull/1223",
+        mergedAt: "2026-10-19",
+      },
+      {
+        title: "Find Windows agent CLIs by their .exe and .cmd names",
+        problem:
+          "Claude Code's native Windows installer puts claude.exe on the PATH, but Whiteboard only looked for the bare name, so it was never detected.",
+        fix: "On Windows, try <name>.exe then <name>.cmd, skip the extensionless sh shim, and launch .cmd files through cmd.exe because Node can't spawn them directly.",
+        issueNumber: 1224,
+        issueUrl: "https://github.com/devdotfast/whiteboard/issues/1224",
+        prNumber: 1225,
+        prUrl: "https://github.com/devdotfast/whiteboard/pull/1225",
+        mergedAt: "2026-10-19",
+      },
+    ],
+  },
+];
+
 export const chatSuggestions = [
   "How do you keep LLM agents reliable in production?",
   "Tell me about the agent architecture you had to rebuild.",
   "How do you track what an AI feature actually costs?",
   "What AIOps work have you done?",
+  "Has he contributed to open source?",
   "How can I get in touch?",
 ];

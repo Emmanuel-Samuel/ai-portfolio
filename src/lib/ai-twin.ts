@@ -1,4 +1,4 @@
-import { about, experiences, personalInfo, projects, skillCategories, stats } from "@/data/portfolio";
+import { about, experiences, openSourceProjects, personalInfo, projects, skillCategories, stats } from "@/data/portfolio";
 
 export const CHAT_MEMORY_WINDOW = 10;
 export const CHAT_STORAGE_KEY = "emmanuel-ai-twin-chat";
@@ -115,6 +115,18 @@ const skillContext = skillCategories
   .map((category) => `- ${category.title}: ${category.skills.join(", ")}`)
   .join("\n");
 
+const openSourceContext = openSourceProjects
+  .map(
+    (project) =>
+      `- ${project.name} (${project.repo}, ${project.language}, ${project.license}, ~${project.stars} GitHub stars): ${project.description} Repo: ${project.repoUrl}${project.postPath ? ` Blog write-up: ${project.postPath}` : ""}\n${project.contributions
+        .map(
+          (c) =>
+            `  - Merged ${c.mergedAt}: "${c.title}" (PR #${c.prNumber}: ${c.prUrl}, fixes issue #${c.issueNumber}: ${c.issueUrl}). Problem: ${c.problem} Fix: ${c.fix}`
+        )
+        .join("\n")}`
+  )
+  .join("\n");
+
 export const PORTFOLIO_CONTEXT = `
 Personal info:
 - Name: ${personalInfo.name}
@@ -139,9 +151,14 @@ ${projectContext}
 Skills:
 ${skillContext}
 
+Open source contributions (all merged; section link: #open-source):
+${openSourceContext}
+When discussing these, state only the facts above, link the PR and issue URLs, and do not add claims about the project beyond its description.
+
 Navigation links:
 - Contact section: #contact
 - Projects section: #projects
+- Open source section: #open-source
 - Resume download: ${personalInfo.resumeUrl}
 `;
 
@@ -151,6 +168,7 @@ When links would help the user, use these markdown links directly in the answer:
 - [View LinkedIn](${personalInfo.linkedin})
 - [View GitHub](${personalInfo.github})
 - [Browse Projects](#projects)
+- [Open Source Contributions](#open-source)
 - [Download Resume](${personalInfo.resumeUrl})
 ${projects
   .map(
@@ -172,6 +190,7 @@ export function findMatchingProjects(text: string) {
 function getAnchorLabel(href: string) {
   if (href === "#contact") return "Contact section";
   if (href === "#projects") return "Projects section";
+  if (href === "#open-source") return "Open source section";
 
   const project = projectAnchorMap.get(href);
   if (project) return project.title;
@@ -182,11 +201,11 @@ function getAnchorLabel(href: string) {
 function normalizeGeneratedLinks(response: string) {
   let next = response;
 
-  next = next.replace(/\[(#(?:project-[a-z0-9-]+|projects|contact))\]/gi, (_, href: string) => {
+  next = next.replace(/\[(#(?:project-[a-z0-9-]+|projects|open-source|contact))\]/gi, (_, href: string) => {
     return `[${getAnchorLabel(href)}](${href})`;
   });
 
-  next = next.replace(/(View details:\s*)(#(?:project-[a-z0-9-]+|projects|contact))/gi, (_, prefix: string, href: string) => {
+  next = next.replace(/(View details:\s*)(#(?:project-[a-z0-9-]+|projects|open-source|contact))/gi, (_, prefix: string, href: string) => {
     return `${prefix}[${getAnchorLabel(href)}](${href})`;
   });
 
