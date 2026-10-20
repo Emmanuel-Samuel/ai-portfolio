@@ -160,11 +160,11 @@ ${skillContext}
 
 Open source contributions (all merged; section link: #open-source):
 ${openSourceContext}
-When discussing these, state only the facts above, link the PR and issue URLs, and do not add claims about the project beyond its description.
+When discussing these, state only the facts above, link the PR and issue URLs, and do not add claims about the project beyond its description. Emmanuel wrote these PRs and the project's maintainers merged them; never say he merged them. Whiteboard is a design canvas app, not a library.
 
 Open source projects he founded and maintains (his own, NOT contributions to other people's projects; same section: #open-source):
 ${maintainedContext}
-When discussing these, state only the facts above, link the repo URLs, and do not add claims, metrics, users or results beyond what is written.
+When discussing these, state only the facts above, link the repo URLs, and do not add claims, metrics, users or results beyond what is written. Give the exact number of repos listed; never say "a handful" or "several".
 
 Navigation links:
 - Contact section: #contact
